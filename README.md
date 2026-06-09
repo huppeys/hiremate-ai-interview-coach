@@ -1,1 +1,29 @@
-# hiremate-ai-interview-coach
+# HireMate – AI Interview Coach
+
+An AI-powered interview preparation tool for students and recent graduates.
+
+## Team – Visionary Creators
+- Anish Jaiswal
+- Razee Nepal
+- Shaket Regmi
+- Kacey Banks
+
+## Project Description
+HireMate simulates real job interviews, provides personalized AI feedback,
+analyzes performance, and tracks progress over time.
+
+## Tech Stack
+- Frontend: React.js (Vite)
+- Backend: Node.js + Express
+- Database: Firebase Firestore
+- AI: Anthropic Claude API
+- Hosting: AWS / Google Cloud
+
+## Project Structure
+- /frontend – React application
+- /backend  – Node.js/Express API server
+- /docs     – Documentation and SRS
+
+## Course
+CSCE 3444 – Software Engineering
+University of North Texas, Spring 2026
