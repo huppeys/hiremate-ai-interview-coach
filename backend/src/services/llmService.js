@@ -1,7 +1,7 @@
 // services/llmService.js
 //
 // FR-08: Generate tailored interview questions using Claude.
-// Returns JSON array of objects: { id, question, type, difficulty, tips }
+// FR-12: Generate a follow-up question based on the candidate's answer.
 
 const Anthropic = require("@anthropic-ai/sdk");
 
@@ -64,7 +64,7 @@ function parseJsonResponse(raw) {
  * @param {string} config.role
  * @param {string} config.industry
  * @param {"intern"|"entry"|"mid"} config.experienceLevel
- * @param {string} [config.resumeText] - extracted resume text
+ * @param {string} [config.resumeText]
  * @param {number} [config.count=10]
  * @returns {Promise<Array<{id:string, question:string, type:string, difficulty:string, tips:string}>>}
  */
@@ -88,11 +88,11 @@ no markdown formatting, no preamble, no explanation outside the JSON.
 
 The JSON must be an array of objects with EXACTLY this shape:
 {
-  "id": string,            // short unique id, e.g. "q1", "q2"
-  "question": string,      // the interview question text
+  "id": string,
+  "question": string,
   "type": "behavioral" | "technical",
   "difficulty": "easy" | "medium" | "hard",
-  "tips": string            // 1-2 sentences of guidance on how to approach answering
+  "tips": string
 }`;
 
   const userPrompt = `
@@ -132,6 +132,49 @@ Rules:
   return questions;
 }
 
+/**
+ * FR-12: Generate a single follow-up question based on the candidate's
+ * previous answer, simulating a real interviewer probing deeper.
+ *
+ * @param {string} question - the original question text
+ * @param {string} answer - the candidate's answer
+ * @param {Object} [context] - { role, industry }
+ * @returns {Promise<string|null>} follow-up question text, or null if none warranted
+ */
+async function generateFollowUp(question, answer, context = {}) {
+  const { role = "", industry = "" } = context;
+
+  const system = `You are an interviewer deciding whether to ask ONE natural follow-up
+question based on a candidate's response. Respond with ONLY valid JSON in this exact shape:
+{ "shouldFollowUp": boolean, "followUpQuestion": string | null }
+
+Only ask a follow-up if the answer was vague, lacked detail (e.g. missing concrete
+results/metrics, incomplete STAR structure, or surface-level technical depth).
+If the answer was already thorough, set shouldFollowUp to false and followUpQuestion to null.`;
+
+  const userPrompt = `
+Role: ${role}
+Industry: ${industry}
+
+Original question: "${question}"
+Candidate's answer: "${answer}"
+
+Respond with the JSON object only.
+`.trim();
+
+  const raw = await callClaude({
+    system,
+    messages: [{ role: "user", content: userPrompt }],
+    maxTokens: 256,
+  });
+
+  const result = parseJsonResponse(raw);
+
+  if (!result.shouldFollowUp) return null;
+  return result.followUpQuestion || null;
+}
+
 module.exports = {
   generateQuestions,
+  generateFollowUp,
 };
