@@ -1,20 +1,40 @@
 const express = require("express");
 const router = express.Router();
-const { generateQuestions, generateFollowUp } = require("../services/llmService");
+const { generateQuestions, getSession } = require("../services/aiService");
+const { generateFollowUp } = require("../services/llmService");
 
 // POST /api/questions/generate
-// Body: { interviewType, role, industry, experienceLevel, resumeText?, count? }
+// Body: { sessionId, interviewType, role, industry, experienceLevel, resumeText?, count? }
 router.post("/generate", async (req, res) => {
   try {
-    const questions = await generateQuestions(req.body);
+    const { sessionId, ...config } = req.body;
+
+    if (!sessionId) {
+      return res.status(400).json({ message: "sessionId is required" });
+    }
+
+    const questions = await generateQuestions(sessionId, config);
     res.json({ questions });
   } catch (err) {
     console.error(err);
     if (err.message === "AI_SERVICE_UNAVAILABLE") {
       return res.status(503).json({ message: "AI service is currently unavailable. Please try again." });
     }
+    if (err.message === "AI_RESPONSE_PARSE_ERROR") {
+      return res.status(502).json({ message: "AI returned an invalid response. Please try again." });
+    }
     res.status(500).json({ message: "Something went wrong", error: err.message });
   }
+});
+
+// GET /api/questions/session/:sessionId
+// For testing: view the stored session + questions
+router.get("/session/:sessionId", (req, res) => {
+  const session = getSession(req.params.sessionId);
+  if (!session) {
+    return res.status(404).json({ message: "Session not found" });
+  }
+  res.json(session);
 });
 
 // POST /api/questions/follow-up
