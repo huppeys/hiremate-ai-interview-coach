@@ -1,0 +1,355 @@
+{
+  "info": {
+    "name": "HireMate Auth API",
+    "description": "All authentication endpoints for HireMate – FR-01, FR-02, FR-03",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000/api", "type": "string" },
+    { "key": "accessToken", "value": "", "type": "string" },
+    { "key": "refreshToken", "value": "", "type": "string" },
+    { "key": "resetToken", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Register – success",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+              "const json = pm.response.json();",
+              "pm.test('Returns accessToken', () => pm.expect(json.accessToken).to.be.a('string'));",
+              "pm.test('Returns refreshToken', () => pm.expect(json.refreshToken).to.be.a('string'));",
+              "pm.collectionVariables.set('accessToken', json.accessToken);",
+              "pm.collectionVariables.set('refreshToken', json.refreshToken);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Anish Jaiswal\",\n  \"email\": \"anish@test.com\",\n  \"password\": \"Password1\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
+      }
+    },
+    {
+      "name": "Register – duplicate email (400)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+              "pm.test('Error message present', () => pm.expect(pm.response.json().message).to.eql('User already exists'));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Anish Jaiswal\",\n  \"email\": \"anish@test.com\",\n  \"password\": \"Password1\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
+      }
+    },
+    {
+      "name": "Register – validation error (400)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+              "pm.test('Returns errors array', () => pm.expect(pm.response.json().errors).to.be.an('array'));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"\",\n  \"email\": \"notanemail\",\n  \"password\": \"weak\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
+      }
+    },
+    {
+      "name": "Login – success",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "const json = pm.response.json();",
+              "pm.test('Returns accessToken', () => pm.expect(json.accessToken).to.be.a('string'));",
+              "pm.test('Returns refreshToken', () => pm.expect(json.refreshToken).to.be.a('string'));",
+              "pm.collectionVariables.set('accessToken', json.accessToken);",
+              "pm.collectionVariables.set('refreshToken', json.refreshToken);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"anish@test.com\",\n  \"password\": \"Password1\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+      }
+    },
+    {
+      "name": "Login – wrong password (400)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+              "pm.test('Invalid password message', () => pm.expect(pm.response.json().message).to.eql('Invalid password'));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"anish@test.com\",\n  \"password\": \"WrongPass9\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+      }
+    },
+    {
+      "name": "Login – user not found (404)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 404', () => pm.response.to.have.status(404));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"nobody@test.com\",\n  \"password\": \"Password1\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+      }
+    },
+    {
+      "name": "Refresh token – success",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "pm.test('Returns new accessToken', () => pm.expect(pm.response.json().accessToken).to.be.a('string'));",
+              "pm.collectionVariables.set('accessToken', pm.response.json().accessToken);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/auth/refresh", "host": ["{{baseUrl}}"], "path": ["auth", "refresh"] }
+      }
+    },
+    {
+      "name": "Refresh token – invalid token (401)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 401', () => pm.response.to.have.status(401));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"refreshToken\": \"invalid.token.here\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/auth/refresh", "host": ["{{baseUrl}}"], "path": ["auth", "refresh"] }
+      }
+    },
+    {
+      "name": "Forgot password – success",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "pm.test('Generic message returned', () => pm.expect(pm.response.json().message).to.include('If that email exists'));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"anish@test.com\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/auth/forgot-password", "host": ["{{baseUrl}}"], "path": ["auth", "forgot-password"] }
+      }
+    },
+    {
+      "name": "Forgot password – unknown email (200 same response)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "pm.test('Same generic message (no email leak)', () => pm.expect(pm.response.json().message).to.include('If that email exists'));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"nobody@test.com\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/auth/forgot-password", "host": ["{{baseUrl}}"], "path": ["auth", "forgot-password"] }
+      }
+    },
+    {
+      "name": "Reset password – invalid token (400)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 400', () => pm.response.to.have.status(400));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"token\": \"invalidtoken\",\n  \"password\": \"NewPass1\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/auth/reset-password", "host": ["{{baseUrl}}"], "path": ["auth", "reset-password"] }
+      }
+    },
+    {
+      "name": "Reset password – weak password (400)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 400', () => pm.response.to.have.status(400));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"token\": \"{{resetToken}}\",\n  \"password\": \"weak\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/auth/reset-password", "host": ["{{baseUrl}}"], "path": ["auth", "reset-password"] }
+      }
+    },
+    {
+      "name": "Logout – success",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "pm.test('Logged out message', () => pm.expect(pm.response.json().message).to.eql('Logged out successfully'));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/auth/logout", "host": ["{{baseUrl}}"], "path": ["auth", "logout"] }
+      }
+    },
+    {
+      "name": "Logout – already logged out (400)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 400', () => pm.response.to.have.status(400));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/auth/logout", "host": ["{{baseUrl}}"], "path": ["auth", "logout"] }
+      }
+    }
+  ]
+}
