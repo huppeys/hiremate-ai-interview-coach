@@ -61,8 +61,31 @@ async function saveResponse(
   return data[0];
 }
 
+async function getSession(sessionId) {
+  const { data: session, error: sessionError } = await supabase
+    .from("sessions")
+    .select("*")
+    .eq("id", sessionId)
+    .single();
+
+  if (sessionError) throw sessionError;
+
+  const { data: questions, error: questionsError } = await supabase
+    .from("questions")
+    .select("*")
+    .eq("session_id", sessionId);
+
+  if (questionsError) throw questionsError;
+
+  return {
+    ...session,
+    questions,
+  };
+}
+
 module.exports = {
   createSession,
   saveQuestion,
   saveResponse,
+  getSession,
 };
