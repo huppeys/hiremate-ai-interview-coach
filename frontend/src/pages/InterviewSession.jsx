@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../api/axiosConfig";
+import ResponseInput from "../components/ResponseInput";
 
 const TIMER_SECONDS = 120;
 
-// Dummy questions for UI testing until backend is ready
 const DUMMY_QUESTIONS = [
   {
     id: "q1",
@@ -42,7 +42,6 @@ export default function InterviewSession() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [sessionDone, setSessionDone] = useState(false);
-  const [error, setError] = useState("");
 
   const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS);
   const [timerActive, setTimerActive] = useState(false);
@@ -54,7 +53,6 @@ export default function InterviewSession() {
         setQuestions(res.data.questions || []);
         setTimerActive(true);
       } catch (err) {
-        // Backend not ready yet — use dummy questions for UI testing
         setQuestions(DUMMY_QUESTIONS);
         setTimerActive(true);
       } finally {
@@ -102,7 +100,6 @@ export default function InterviewSession() {
       setFeedback(res.data.feedback || null);
       setFollowUp(res.data.followUpQuestion || null);
     } catch (err) {
-      // Placeholder feedback until backend is ready
       setFeedback({
         contentScore: 7,
         clarityScore: 8,
@@ -147,12 +144,8 @@ export default function InterviewSession() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
         <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full text-center">
-          <h2 className="text-2xl font-bold text-indigo-700 mb-2">
-            Session Complete!
-          </h2>
-          <p className="text-gray-500 mb-6">
-            Great work! You answered all {questions.length} questions.
-          </p>
+          <h2 className="text-2xl font-bold text-indigo-700 mb-2">Session Complete!</h2>
+          <p className="text-gray-500 mb-6">Great work! You answered all {questions.length} questions.</p>
           <button
             onClick={() => navigate("/dashboard")}
             className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-lg transition"
@@ -168,12 +161,8 @@ export default function InterviewSession() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Top bar */}
       <div className="flex items-center justify-between px-6 py-4 bg-white shadow-sm">
-        <button
-          onClick={handleExit}
-          className="text-sm text-gray-500 hover:text-red-500 transition font-medium"
-        >
+        <button onClick={handleExit} className="text-sm text-gray-500 hover:text-red-500 transition font-medium">
           ✕ Exit
         </button>
         <span className="text-sm font-medium text-gray-600">
@@ -184,40 +173,27 @@ export default function InterviewSession() {
         </span>
       </div>
 
-      {/* Main content */}
       <div className="flex-1 flex flex-col items-center justify-start px-4 py-8 max-w-2xl mx-auto w-full">
-
-        {/* Question card */}
         <div className="w-full bg-white rounded-2xl shadow p-6 mb-6">
           <p className="text-xs text-indigo-500 font-semibold uppercase mb-2">
             {currentQuestion?.type} · {currentQuestion?.difficulty}
           </p>
-          <p className="text-lg font-medium text-gray-800">
-            {currentQuestion?.question}
-          </p>
+          <p className="text-lg font-medium text-gray-800">{currentQuestion?.question}</p>
           {currentQuestion?.tips && (
-            <p className="text-sm text-gray-400 mt-3 italic">
-              💡 {currentQuestion.tips}
-            </p>
+            <p className="text-sm text-gray-400 mt-3 italic">💡 {currentQuestion.tips}</p>
           )}
         </div>
 
-        {/* Follow-up */}
         {followUp && (
           <div className="w-full bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-4">
-            <p className="text-xs font-semibold text-yellow-600 uppercase mb-1">
-              Follow-up
-            </p>
+            <p className="text-xs font-semibold text-yellow-600 uppercase mb-1">Follow-up</p>
             <p className="text-sm text-gray-700">{followUp}</p>
           </div>
         )}
 
-        {/* Feedback */}
         {feedback && (
           <div className="w-full bg-indigo-50 border border-indigo-200 rounded-xl p-4 mb-4">
-            <p className="text-xs font-semibold text-indigo-600 uppercase mb-2">
-              Feedback
-            </p>
+            <p className="text-xs font-semibold text-indigo-600 uppercase mb-2">Feedback</p>
             <div className="grid grid-cols-2 gap-2 text-sm mb-3">
               <span className="text-gray-600">Content: <strong>{feedback.contentScore}/10</strong></span>
               <span className="text-gray-600">Clarity: <strong>{feedback.clarityScore}/10</strong></span>
@@ -230,20 +206,10 @@ export default function InterviewSession() {
           </div>
         )}
 
-        {/* Answer area */}
         {!feedback && (
-          <div className="w-full mb-4">
-            <textarea
-              value={answer}
-              onChange={(e) => setAnswer(e.target.value)}
-              placeholder="Type your response here..."
-              rows={6}
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"
-            />
-          </div>
+          <ResponseInput value={answer} onChange={setAnswer} />
         )}
 
-        {/* Buttons */}
         {!feedback ? (
           <button
             onClick={handleSubmit}
