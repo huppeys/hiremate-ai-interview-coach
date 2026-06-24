@@ -11,8 +11,8 @@
 
 const { generateQuestions: llmGenerateQuestions } = require("./llmService");
 
-// TEMPORARY in-memory store: { [sessionId]: { config, questions, createdAt } }
-const sessions = new Map();
+// In-memory store
+const { createSession, saveQuestion } = require("./sessionService");
 
 /**
  * Generates interview questions for a session config, validates the
