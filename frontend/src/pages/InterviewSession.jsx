@@ -49,7 +49,7 @@ export default function InterviewSession() {
   useEffect(() => {
     async function loadSession() {
       try {
-        const res = await api.get(`/sessions/${sessionId}`);
+        const res = await api.get(`/questions/session/${sessionId}`);
         setQuestions(res.data.questions || []);
         setTimerActive(true);
       } catch (err) {
