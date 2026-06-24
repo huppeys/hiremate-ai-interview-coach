@@ -44,21 +44,16 @@ export default function Login() {
     if (!validate()) return;
 
     setIsSubmitting(true);
-      try {
-        const data = await login(
-          formData.email,
-          formData.password
-        );
 
-        localStorage.setItem(
-          "hiremate_user",
-           JSON.stringify(data.user)
-        );
+    try {
+      const res = await api.post("/auth/login", {
+        email: formData.email,
+        password: formData.password,
+      });
 
-        navigate("/dashboard");
-      }
-
-     catch (err) {
+       localStorage.setItem("hiremate_token", res.data.token);
+       navigate("/dashboard");
+      }catch (err) {
       if (err.response?.data?.message) {
         setServerError(err.response.data.message);
       } else {
