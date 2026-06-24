@@ -1,8 +1,3 @@
-// services/llmService.js
-//
-// FR-08: Generate tailored interview questions using Claude.
-// FR-12: Generate a follow-up question based on the candidate's answer.
-
 const Anthropic = require("@anthropic-ai/sdk");
 
 const client = new Anthropic({
@@ -13,7 +8,6 @@ const MODEL = "claude-sonnet-4-6";
 const MAX_RETRIES = 3;
 const BASE_DELAY_MS = 1000;
 
-// Wrapper with retry logic for rate limits / transient errors
 async function callClaude({ system, messages, maxTokens = 2048 }) {
   let lastError;
 
@@ -45,7 +39,6 @@ async function callClaude({ system, messages, maxTokens = 2048 }) {
   throw new Error("AI_SERVICE_UNAVAILABLE");
 }
 
-// Strip markdown fences and parse JSON safely
 function parseJsonResponse(raw) {
   const cleaned = raw.replace(/```json|```/g, "").trim();
   try {
@@ -56,18 +49,6 @@ function parseJsonResponse(raw) {
   }
 }
 
-/**
- * FR-08: Generate 8-12 tailored interview questions.
- *
- * @param {Object} config
- * @param {"behavioral"|"technical"|"mixed"} config.interviewType
- * @param {string} config.role
- * @param {string} config.industry
- * @param {"intern"|"entry"|"mid"} config.experienceLevel
- * @param {string} [config.resumeText]
- * @param {number} [config.count=10]
- * @returns {Promise<Array<{id:string, question:string, type:string, difficulty:string, tips:string}>>}
- */
 async function generateQuestions(config) {
   const {
     interviewType,
@@ -95,7 +76,7 @@ The JSON must be an array of objects with EXACTLY this shape:
   "tips": string
 }`;
 
-  const userPrompt = `
+  const userMessage = `
 Create exactly ${count} interview questions.
 
 Session configuration:
@@ -103,23 +84,19 @@ Session configuration:
 - Target role: ${role}
 - Target industry: ${industry}
 - Experience level: ${experienceLevel}
-${resumeText ? `- Candidate resume (reference specific skills/projects from this where relevant):\n${resumeText}` : ""}
+${resumeText ? `- Candidate resume:\n${resumeText}` : ""}
 
 Rules:
 - If interviewType is "behavioral", all questions should be behavioral (STAR-friendly).
 - If "technical", all questions should test domain knowledge relevant to ${role} in ${industry}.
 - If "mixed", split roughly evenly between behavioral and technical.
-- Difficulty should match a ${experienceLevel}-level candidate (mostly "easy"/"medium" for intern,
-  a mix including some "hard" for mid-level).
-- If resume text is provided, at least 2-3 questions should reference specific skills,
-  technologies, or projects mentioned in the resume.
-- Do not repeat near-duplicate questions.
+- Difficulty should match a ${experienceLevel}-level candidate.
 - Respond with ONLY the JSON array, nothing else.
 `.trim();
 
   const raw = await callClaude({
     system,
-    messages: [{ role: "user", content: userPrompt }],
+    messages: [{ role: "user", content: userMessage }],
     maxTokens: 2048,
   });
 
@@ -132,15 +109,6 @@ Rules:
   return questions;
 }
 
-/**
- * FR-12: Generate a single follow-up question based on the candidate's
- * previous answer, simulating a real interviewer probing deeper.
- *
- * @param {string} question - the original question text
- * @param {string} answer - the candidate's answer
- * @param {Object} [context] - { role, industry }
- * @returns {Promise<string|null>} follow-up question text, or null if none warranted
- */
 async function generateFollowUp(question, answer, context = {}) {
   const { role = "", industry = "" } = context;
 
@@ -148,11 +116,10 @@ async function generateFollowUp(question, answer, context = {}) {
 question based on a candidate's response. Respond with ONLY valid JSON in this exact shape:
 { "shouldFollowUp": boolean, "followUpQuestion": string | null }
 
-Only ask a follow-up if the answer was vague, lacked detail (e.g. missing concrete
-results/metrics, incomplete STAR structure, or surface-level technical depth).
-If the answer was already thorough, set shouldFollowUp to false and followUpQuestion to null.`;
+Only ask a follow-up if the answer was vague, lacked detail, or was surface-level.
+If the answer was thorough, set shouldFollowUp to false and followUpQuestion to null.`;
 
-  const userPrompt = `
+  const userMessage = `
 Role: ${role}
 Industry: ${industry}
 
@@ -164,7 +131,7 @@ Respond with the JSON object only.
 
   const raw = await callClaude({
     system,
-    messages: [{ role: "user", content: userPrompt }],
+    messages: [{ role: "user", content: userMessage }],
     maxTokens: 256,
   });
 
