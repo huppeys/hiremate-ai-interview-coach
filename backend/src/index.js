@@ -17,6 +17,9 @@ app.use('/api/auth', authRoutes);
 const questionsRoutes = require('./routes/questions');
 app.use('/api/questions', questionsRoutes);
 
+const sessionsRoutes = require("./routes/sessions");
+app.use("/api/sessions", sessionsRoutes);
+
 // Test route
 app.get('/', (req, res) => {
   res.json({ message: 'HireMate API is running!' });
