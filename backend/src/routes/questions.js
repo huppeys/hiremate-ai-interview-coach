@@ -29,8 +29,8 @@ router.post("/generate", async (req, res) => {
 
 // GET /api/questions/session/:sessionId
 // For testing: view the stored session + questions
-router.get("/session/:sessionId", (req, res) => {
-  const session = getSession(req.params.sessionId);
+router.get("/session/:sessionId", async (req, res) => {
+  const session = await getSession(req.params.sessionId);
   if (!session) {
     return res.status(404).json({ message: "Session not found" });
   }
