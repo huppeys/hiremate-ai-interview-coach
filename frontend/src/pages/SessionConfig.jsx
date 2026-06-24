@@ -70,8 +70,13 @@ export default function SessionConfig() {
     setServerError("");
     setIsSubmitting(true);
     try {
-      const res = await api.post("/sessions/config", config);
-      const { sessionId } = res.data;
+      const res = await api.post("/sessions", {
+        userId: "11111111-1111-1111-1111-111111111111",
+        interviewType: config.interviewType,
+        targetRole: config.role,
+        industry: config.industry,
+      });
+      const sessionId = res.data.id;
 
       navigate(`/interview/${sessionId}`);
     } catch (err) {
