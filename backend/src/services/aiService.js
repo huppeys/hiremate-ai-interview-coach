@@ -4,7 +4,11 @@
 // stores generated questions in Supabase via sessionService.
 
 const { generateQuestions: llmGenerateQuestions } = require("./llmService");
-const { createSession, saveQuestion } = require("./sessionService");
+const { 
+  createSession, 
+  saveQuestion,
+  getSession,
+} = require("./sessionService");
 
 /**
  * Generates interview questions for a session config, validates the
@@ -47,4 +51,5 @@ async function generateQuestions(userId, config) {
 
 module.exports = {
   generateQuestions,
+  getSession,
 };
