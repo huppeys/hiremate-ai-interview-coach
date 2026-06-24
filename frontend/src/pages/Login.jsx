@@ -1,4 +1,4 @@
-import { login } from "../authority";
+import { login } from "../api/authority";
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "../api/axiosConfig";
