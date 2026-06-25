@@ -68,6 +68,9 @@ async function getSession(sessionId) {
     .eq("id", sessionId)
     .single();
 
+  console.log("SESSION RESULT:", session);
+  console.log("SESSION ERROR:", sessionError);
+
   if (sessionError) throw sessionError;
 
   const { data: questions, error: questionsError } = await supabase
