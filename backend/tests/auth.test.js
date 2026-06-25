@@ -170,3 +170,37 @@ test("POST /api/auth/reset-password should require token and password", async ()
   expect(res.statusCode).toBe(400);
   expect(res.body.message).toBe("Token and new password are required");
 });
+
+test("POST /api/auth/login should reject unknown user", async () => {
+  const res = await request(app)
+    .post("/api/auth/login")
+    .send({
+      email: "unknown@example.com",
+      password: "Password123",
+    });
+
+  expect(res.statusCode).toBe(404);
+  expect(res.body.message).toBe("User not found");
+});
+
+test("POST /api/auth/register should require valid input", async () => {
+  const res = await request(app)
+    .post("/api/auth/register")
+    .send({});
+
+  expect(res.statusCode).toBe(400);
+});
+
+test("POST /api/auth/reset-password should reject invalid token", async () => {
+  const res = await request(app)
+    .post("/api/auth/reset-password")
+    .send({
+      token: "invalid-token",
+      password: "Password123",
+    });
+
+  expect(res.statusCode).toBe(400);
+  expect(res.body.message).toBe(
+    "Invalid or already used reset token"
+  );
+});
