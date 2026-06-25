@@ -20,6 +20,9 @@ if (process.env.NODE_ENV !== "test") {
 
   const sessionsRoutes = require("./routes/sessions");
   app.use("/api/sessions", sessionsRoutes);
+
+  const profileRoutes = require("./routes/profile");
+  app.use("/api/profile", profileRoutes);
 }
 
 // Test route
