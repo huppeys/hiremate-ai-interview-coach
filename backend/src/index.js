@@ -23,7 +23,7 @@ if (process.env.NODE_ENV !== "test") {
 }
 
 // Test route
-app.get('/', (req, res) => {
+app.get("/api/health", (req, res) => {
   res.json({ message: 'HireMate API is running!' });
 });
 
