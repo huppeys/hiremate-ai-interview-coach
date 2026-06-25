@@ -52,6 +52,7 @@ export default function Login() {
       });
 
        localStorage.setItem("hiremate_token", res.data.token);
+       localStorage.setItem("hiremate_refresh", res.data.refreshToken);
        navigate("/dashboard");
       }catch (err) {
       if (err.response?.data?.message) {
