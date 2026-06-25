@@ -6,13 +6,7 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "node src/index.js",
-    "test": "jest",
-    "coverage": "jest --coverage"
-  },
-  "jest": {
-    "collectCoverageFrom": [
-      "src/controllers/authController.js"
-    ]
+    "test": "jest"
   },
   "keywords": [],
   "author": "",
