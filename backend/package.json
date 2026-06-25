@@ -7,7 +7,7 @@
     "start": "node src/index.js",
     "dev": "node src/index.js",
     "test": "jest",
-    "coverage": :jest --coverage"
+    "coverage": jest --coverage"
   },
   "keywords": [],
   "author": "",
