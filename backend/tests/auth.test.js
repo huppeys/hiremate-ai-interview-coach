@@ -128,3 +128,27 @@ test("POST /api/auth/logout should reject invalid refresh token", async () => {
   expect(res.statusCode).toBe(400);
   expect(res.body.message).toBe("Invalid refresh token");
 });
+
+test("POST /api/auth/forgot-password should return success message", async () => {
+  const email = `forgot${Date.now()}@example.com`;
+
+  // Register a user first
+  await request(app)
+    .post("/api/auth/register")
+    .send({
+      name: "Forgot Password User",
+      email,
+      password: "Password123",
+    });
+
+  const res = await request(app)
+    .post("/api/auth/forgot-password")
+    .send({
+      email,
+    });
+
+  expect(res.statusCode).toBe(200);
+  expect(res.body.message).toBe(
+    "If that email exists, a reset link has been sent."
+  );
+});
