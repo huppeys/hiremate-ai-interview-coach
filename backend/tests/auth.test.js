@@ -16,3 +16,25 @@ describe("Auth API", () => {
     expect(res.body.refreshToken).toBeDefined();
   });
 });
+
+test("POST /api/auth/register should reject duplicate email", async () => {
+  const email = `duplicate${Date.now()}@example.com`;
+
+  await request(app)
+    .post("/api/auth/register")
+    .send({
+      name: "Test User",
+      email,
+      password: "Password123",
+    });
+
+  const res = await request(app)
+    .post("/api/auth/register")
+    .send({
+      name: "Test User",
+      email,
+      password: "Password123",
+    });
+
+  expect(res.statusCode).toBe(409);
+});
