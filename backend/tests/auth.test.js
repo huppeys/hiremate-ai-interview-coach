@@ -86,3 +86,34 @@ test("POST /api/auth/login should reject wrong password", async () => {
   expect(res.statusCode).toBe(400);
   expect(res.body.message).toBe("Invalid password");
 });
+
+test("POST /api/auth/logout should logout successfully", async () => {
+  const email = `logout${Date.now()}@example.com`;
+  const password = "Password123";
+
+  // Register the user
+  await request(app)
+    .post("/api/auth/register")
+    .send({
+      name: "Logout User",
+      email,
+      password,
+    });
+
+  // Login to get a refresh token
+  const loginRes = await request(app)
+    .post("/api/auth/login")
+    .send({
+      email,
+      password,
+    });
+
+  const res = await request(app)
+    .post("/api/auth/logout")
+    .send({
+      refreshToken: loginRes.body.refreshToken,
+    });
+
+  expect(res.statusCode).toBe(200);
+  expect(res.body.message).toBe("Logged out successfully");
+});
