@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node src/index.js",
-  "dev": "node src/index.js",
-  "test": "jest",
-  "coverage": "jest --coverage"
+    "dev": "node src/index.js",
+    "test": "jest",
+    "coverage": "jest --coverage"
   },
   "keywords": [],
   "author": "",
