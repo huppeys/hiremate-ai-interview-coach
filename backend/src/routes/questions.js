@@ -30,11 +30,19 @@ router.post("/generate", async (req, res) => {
 // GET /api/questions/session/:sessionId
 // For testing: view the stored session + questions
 router.get("/session/:sessionId", async (req, res) => {
-  const session = await getSession(req.params.sessionId);
-  if (!session) {
-    return res.status(404).json({ message: "Session not found" });
+  try {
+    const session = await getSession(req.params.sessionId);
+    if (!session) {
+      return res.status(404).json({ message: "Session not found" });
+    }
+    res.json(session);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      message: "Something went wrong",
+      error: err.message,
+    });
   }
-  res.json(session);
 });
 
 // POST /api/questions/follow-up
