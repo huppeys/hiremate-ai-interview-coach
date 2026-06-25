@@ -5,7 +5,6 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const app = express();
-console.log("INDEX FILE LOADED");
 
 // Middleware
 app.use(cors());
@@ -24,12 +23,6 @@ app.use("/api/sessions", sessionsRoutes);
 // Test route
 app.get('/', (req, res) => {
   res.json({ message: 'HireMate API is running!' });
-});
-
-// Debug
-app.get("/api/debug-test", (req, res) => {
-  console.log("DEBUG TEST HIT");
-  res.json({ message: "debug route works" });
 });
 
 // Start server
