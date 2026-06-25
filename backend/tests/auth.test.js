@@ -36,5 +36,6 @@ test("POST /api/auth/register should reject duplicate email", async () => {
       password: "Password123",
     });
 
-  expect(res.statusCode).toBe(409);
+  expect(res.statusCode).toBe(400);
+  expect(res.body.message).toBe("User already exists");
 });
