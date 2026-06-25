@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axiosConfig";
+import RoleDropdown from "../components/RoleDropdown";
 
 const INTERVIEW_TYPES = [
   { value: "behavioral", label: "Behavioral" },
@@ -70,14 +71,8 @@ export default function SessionConfig() {
     setServerError("");
     setIsSubmitting(true);
     try {
-      const res = await api.post("/sessions", {
-        userId: "11111111-1111-1111-1111-111111111111",
-        interviewType: config.interviewType,
-        targetRole: config.role,
-        industry: config.industry,
-      });
-      const sessionId = res.data.id;
-
+      const res = await api.post("/sessions/config", config);
+      const { sessionId } = res.data;
       navigate(`/interview/${sessionId}`);
     } catch (err) {
       setServerError(
@@ -161,17 +156,13 @@ export default function SessionConfig() {
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Target Role
                 </label>
-                <input
-                  type="text"
+                <RoleDropdown
                   value={config.role}
-                  onChange={(e) => updateField("role", e.target.value)}
-                  placeholder="e.g. Software Engineer Intern"
-                  className={`mt-1 w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 ${
-                    errors.role ? "border-red-400" : "border-gray-300"
-                  }`}
+                  onChange={(val) => updateField("role", val)}
+                  error={errors.role}
                 />
                 {errors.role && (
                   <p className="text-red-500 text-xs mt-1">{errors.role}</p>
@@ -179,7 +170,7 @@ export default function SessionConfig() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Industry
                 </label>
                 <input
@@ -187,7 +178,7 @@ export default function SessionConfig() {
                   value={config.industry}
                   onChange={(e) => updateField("industry", e.target.value)}
                   placeholder="e.g. Technology, Healthcare, Business"
-                  className={`mt-1 w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 ${
+                  className={`w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 ${
                     errors.industry ? "border-red-400" : "border-gray-300"
                   }`}
                 />
