@@ -64,3 +64,25 @@ test("POST /api/auth/login should login with correct credentials", async () => {
   expect(res.body.accessToken).toBeDefined();
   expect(res.body.refreshToken).toBeDefined();
 });
+
+test("POST /api/auth/login should reject wrong password", async () => {
+  const email = `wrongpass${Date.now()}@example.com`;
+
+  await request(app)
+    .post("/api/auth/register")
+    .send({
+      name: "Wrong Password User",
+      email,
+      password: "Password123",
+    });
+
+  const res = await request(app)
+    .post("/api/auth/login")
+    .send({
+      email,
+      password: "WrongPassword123",
+    });
+
+  expect(res.statusCode).toBe(400);
+  expect(res.body.message).toBe("Invalid password");
+});
