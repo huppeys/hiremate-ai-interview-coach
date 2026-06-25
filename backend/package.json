@@ -9,6 +9,11 @@
     "test": "jest",
     "coverage": "jest --coverage"
   },
+  "jest": {
+    "collectCoverageFrom": [
+      "src/controllers/authController.js"
+    ]
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
