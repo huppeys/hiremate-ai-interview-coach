@@ -30,7 +30,6 @@ router.post("/generate", async (req, res) => {
 // GET /api/questions/session/:sessionId
 // For testing: view the stored session + questions
 router.get("/session/:sessionId", async (req, res) => {
-  console.log("GET QUESTIONS SESSION ROUTE HIT");
   
   try {
     const session = await getSession(req.params.sessionId);
