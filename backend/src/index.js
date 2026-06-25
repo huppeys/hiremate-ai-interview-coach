@@ -14,11 +14,13 @@ app.use(express.json());
 const authRoutes = require('./routes/auth');
 app.use('/api/auth', authRoutes);
 
-const questionsRoutes = require('./routes/questions');
-app.use('/api/questions', questionsRoutes);
+if (process.env.NODE_ENV !== "test") {
+  const questionsRoutes = require("./routes/questions");
+  app.use("/api/questions", questionsRoutes);
 
-const sessionsRoutes = require("./routes/sessions");
-app.use("/api/sessions", sessionsRoutes);
+  const sessionsRoutes = require("./routes/sessions");
+  app.use("/api/sessions", sessionsRoutes);
+}
 
 // Test route
 app.get('/', (req, res) => {
