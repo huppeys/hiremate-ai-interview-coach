@@ -25,13 +25,13 @@ app.get('/', (req, res) => {
   res.json({ message: 'HireMate API is running!' });
 });
 
-module.exports = app;
-
 // Start server
-if (require.main === module) {
-  const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5000;
 
+if (process.env.NODE_ENV !== "test") {
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
   });
 }
+
+module.exports = app;
