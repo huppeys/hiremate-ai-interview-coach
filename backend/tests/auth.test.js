@@ -152,3 +152,12 @@ test("POST /api/auth/forgot-password should return success message", async () =>
     "If that email exists, a reset link has been sent."
   );
 });
+
+test("POST /api/auth/forgot-password should require email", async () => {
+  const res = await request(app)
+    .post("/api/auth/forgot-password")
+    .send({});
+
+  expect(res.statusCode).toBe(400);
+  expect(res.body.message).toBe("Email is required");
+});
