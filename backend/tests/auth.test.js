@@ -161,3 +161,12 @@ test("POST /api/auth/forgot-password should require email", async () => {
   expect(res.statusCode).toBe(400);
   expect(res.body.message).toBe("Email is required");
 });
+
+test("POST /api/auth/reset-password should require token and password", async () => {
+  const res = await request(app)
+    .post("/api/auth/reset-password")
+    .send({});
+
+  expect(res.statusCode).toBe(400);
+  expect(res.body.message).toBe("Token and new password are required");
+});
