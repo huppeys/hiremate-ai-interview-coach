@@ -26,6 +26,12 @@ app.get('/', (req, res) => {
   res.json({ message: 'HireMate API is running!' });
 });
 
+// Debug
+app.get("/api/debug-test", (req, res) => {
+  console.log("DEBUG TEST HIT");
+  res.json({ message: "debug route works" });
+});
+
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
