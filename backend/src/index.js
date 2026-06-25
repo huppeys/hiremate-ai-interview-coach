@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const app = express();
+console.log("INDEX FILE LOADED");
 
 // Middleware
 app.use(cors());
