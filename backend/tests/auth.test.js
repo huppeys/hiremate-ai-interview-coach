@@ -117,3 +117,14 @@ test("POST /api/auth/logout should logout successfully", async () => {
   expect(res.statusCode).toBe(200);
   expect(res.body.message).toBe("Logged out successfully");
 });
+
+test("POST /api/auth/logout should reject invalid refresh token", async () => {
+  const res = await request(app)
+    .post("/api/auth/logout")
+    .send({
+      refreshToken: "invalid-refresh-token",
+    });
+
+  expect(res.statusCode).toBe(400);
+  expect(res.body.message).toBe("Invalid refresh token");
+});
