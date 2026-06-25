@@ -39,3 +39,28 @@ test("POST /api/auth/register should reject duplicate email", async () => {
   expect(res.statusCode).toBe(400);
   expect(res.body.message).toBe("User already exists");
 });
+
+test("POST /api/auth/login should login with correct credentials", async () => {
+  const email = `login${Date.now()}@example.com`;
+  const password = "Password123";
+
+  await request(app)
+    .post("/api/auth/register")
+    .send({
+      name: "Login User",
+      email,
+      password,
+    });
+
+  const res = await request(app)
+    .post("/api/auth/login")
+    .send({
+      email,
+      password,
+    });
+
+  expect(res.statusCode).toBe(200);
+  expect(res.body.message).toBe("Login successful");
+  expect(res.body.accessToken).toBeDefined();
+  expect(res.body.refreshToken).toBeDefined();
+});
