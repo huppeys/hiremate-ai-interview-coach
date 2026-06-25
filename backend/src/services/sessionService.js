@@ -62,21 +62,31 @@ async function saveResponse(
 }
 
 async function getSession(sessionId) {
-  const { data: session, error: sessionError } = await supabase
+  console.log("GET SESSION ID:", sessionId);
+
+  const { data: sessions, error: sessionError } = await supabase
     .from("sessions")
     .select("*")
-    .eq("id", sessionId)
-    .single();
+    .eq("id", Number(sessionId));
 
-  console.log("SESSION RESULT:", session);
+  console.log("SESSION DATA:", sessions);
   console.log("SESSION ERROR:", sessionError);
 
   if (sessionError) throw sessionError;
 
+  if (!sessions || sessions.length === 0) {
+    return null;
+  }
+
+  const session = sessions[0];
+
   const { data: questions, error: questionsError } = await supabase
     .from("questions")
     .select("*")
-    .eq("session_id", sessionId);
+    .eq("session_id", Number(sessionId));
+
+  console.log("QUESTIONS DATA:", questions);
+  console.log("QUESTIONS ERROR:", questionsError);
 
   if (questionsError) throw questionsError;
 
