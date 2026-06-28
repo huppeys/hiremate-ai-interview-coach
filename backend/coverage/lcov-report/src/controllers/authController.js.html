@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">76.04% </span>
+                <span class="strong">81.25% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>73/96</span>
+                <span class='fraction'>78/96</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">48.48% </span>
+                <span class="strong">63.63% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>16/33</span>
+                <span class='fraction'>21/33</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">76.08% </span>
+                <span class="strong">81.52% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>70/92</span>
+                <span class='fraction'>75/92</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line medium'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -283,9 +283,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">7x</span>
@@ -318,12 +318,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">12x</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
@@ -391,16 +391,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -475,8 +475,8 @@ const generateRefreshToken = (payload) =&gt;
 // POST /auth/register
 const register = async (req, res) =&gt; {
   const errors = validationResult(req);
-  <span class="missing-if-branch" title="if path not taken" >I</span>if (!errors.isEmpty()) {
-<span class="cstat-no" title="statement not covered" >    return res.status(400).json({ errors: errors.array() });</span>
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
   }
 &nbsp;
   try {
@@ -513,8 +513,8 @@ const login = async (req, res) =&gt; {
     const { email, password } = req.body;
 &nbsp;
     const user = users.find(u =&gt; u.email === email);
-    <span class="missing-if-branch" title="if path not taken" >I</span>if (!user) {
-<span class="cstat-no" title="statement not covered" >      return res.status(404).json({ message: 'User not found' });</span>
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
 &nbsp;
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
@@ -585,13 +585,13 @@ const resetPassword = async (req, res) =&gt; {
   try {
     const { token, password } = req.body;
 &nbsp;
-    <span class="missing-if-branch" title="else path not taken" >E</span>if (!token || <span class="branch-1 cbranch-no" title="branch not covered" >!password)</span> {
+    if (!token || !password) {
       return res.status(400).json({ message: 'Token and new password are required' });
     }
 &nbsp;
-    const record = <span class="cstat-no" title="statement not covered" >resetTokens.get(token);</span>
-<span class="cstat-no" title="statement not covered" >    if (!record) {</span>
-<span class="cstat-no" title="statement not covered" >      return res.status(400).json({ message: 'Invalid or already used reset token' });</span>
+    const record = resetTokens.get(token);
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (!record) {
+      return res.status(400).json({ message: 'Invalid or already used reset token' });
     }
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    if (Date.now() &gt; record.expiresAt) {</span>
@@ -643,7 +643,7 @@ module.exports = { register, login, logout, forgotPassword, resetPassword, refre
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-06-25T05:25:32.810Z
+                at 2026-06-28T06:30:12.781Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
