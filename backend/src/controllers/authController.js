@@ -5,8 +5,7 @@ const nodemailer = require('nodemailer');
 const { validationResult } = require('express-validator');
 const supabase = require("../services/supabase");
 
-// Temporary in-memory store (replace with Firestore later)
-const users = [];
+
 const refreshTokens = new Set();
 const resetTokens = new Map(); // token -> { email, expiresAt }
 
@@ -120,7 +119,12 @@ const forgotPassword = async (req, res) => {
       return res.status(400).json({ message: 'Email is required' });
     }
 
-    const user = user.password = await bcrypt.hash(password, 12);
+    const { data: user, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("email", email)
+      .maybeSingle();
+    if (error) throw error;
     if (!user) {
       // Return 200 to avoid leaking whether an email is registered
       return res.status(200).json({ message: 'If that email exists, a reset link has been sent.' });
@@ -179,7 +183,14 @@ const resetPassword = async (req, res) => {
       });
     }
 
-    const user = users.find(u => u.email === record.email);
+    const { data: user, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("email", record.email)
+      .maybeSingle();
+
+    if (error) throw error;
+    
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
