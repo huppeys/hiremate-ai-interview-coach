@@ -1,0 +1,267 @@
+{
+  "info": {
+    "name": "HireMate Sessions API",
+    "description": "Test cases for Sessions endpoints — FR Sprint 2",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000/api", "type": "string" },
+    { "key": "jwt_token", "value": "", "type": "string" },
+    { "key": "sessionId", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "0. Login (get token first)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "pm.collectionVariables.set('jwt_token', pm.response.json().accessToken);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"email\": \"anish@test.com\",\n  \"password\": \"Password1\"\n}" },
+        "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+      }
+    },
+    {
+      "name": "1. POST /sessions/config — success (saves sessionId)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+              "const json = pm.response.json();",
+              "pm.test('Returns sessionId', () => pm.expect(json.sessionId).to.be.a('string'));",
+              "pm.collectionVariables.set('sessionId', json.sessionId);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"interviewType\": \"behavioral\",\n  \"targetRole\": \"Software Engineer\",\n  \"industry\": \"Technology\",\n  \"experienceLevel\": \"entry\"\n}" },
+        "url": { "raw": "{{baseUrl}}/sessions/config", "host": ["{{baseUrl}}"], "path": ["sessions", "config"] }
+      }
+    },
+    {
+      "name": "2. POST /sessions/config — no resume (form-data)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+              "pm.test('Returns sessionId', () => pm.expect(pm.response.json().sessionId).to.be.a('string'));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "interviewType", "value": "behavioral", "type": "text" },
+            { "key": "targetRole", "value": "Software Engineer", "type": "text" },
+            { "key": "industry", "value": "Technology", "type": "text" },
+            { "key": "experienceLevel", "value": "entry", "type": "text" },
+            { "key": "resume", "type": "file", "src": "" }
+          ]
+        },
+        "url": { "raw": "{{baseUrl}}/sessions/config", "host": ["{{baseUrl}}"], "path": ["sessions", "config"] }
+      }
+    },
+    {
+      "name": "3. POST /sessions/config — missing fields (400)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+              "pm.test('Returns errors array', () => pm.expect(pm.response.json().errors).to.be.an('array'));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"interviewType\": \"behavioral\"\n}" },
+        "url": { "raw": "{{baseUrl}}/sessions/config", "host": ["{{baseUrl}}"], "path": ["sessions", "config"] }
+      }
+    },
+    {
+      "name": "4. POST /sessions/config — no auth token (401)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 401', () => pm.response.to.have.status(401));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"interviewType\": \"behavioral\",\n  \"targetRole\": \"Software Engineer\",\n  \"industry\": \"Technology\",\n  \"experienceLevel\": \"entry\"\n}" },
+        "url": { "raw": "{{baseUrl}}/sessions/config", "host": ["{{baseUrl}}"], "path": ["sessions", "config"] }
+      }
+    },
+    {
+      "name": "5. POST /sessions/{id}/responses — answer q1",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+              "pm.test('Returns responseId', () => pm.expect(pm.response.json().responseId).to.be.a('string'));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"questionId\": \"q1\",\n  \"responseText\": \"This is my test answer for the interview question\"\n}" },
+        "url": { "raw": "{{baseUrl}}/sessions/{{sessionId}}/responses", "host": ["{{baseUrl}}"], "path": ["sessions", "{{sessionId}}", "responses"] }
+      }
+    },
+    {
+      "name": "6. POST /sessions/{id}/responses — answer q2",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+              "pm.test('Returns responseId', () => pm.expect(pm.response.json().responseId).to.be.a('string'));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"questionId\": \"q2\",\n  \"responseText\": \"Another answer for testing the second question\"\n}" },
+        "url": { "raw": "{{baseUrl}}/sessions/{{sessionId}}/responses", "host": ["{{baseUrl}}"], "path": ["sessions", "{{sessionId}}", "responses"] }
+      }
+    },
+    {
+      "name": "7. PATCH /sessions/{id}/pause — confirm paused",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "pm.test('Session paused', () => pm.expect(pm.response.json().message).to.eql('Session paused'));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }],
+        "url": { "raw": "{{baseUrl}}/sessions/{{sessionId}}/pause", "host": ["{{baseUrl}}"], "path": ["sessions", "{{sessionId}}", "pause"] }
+      }
+    },
+    {
+      "name": "8. GET /sessions/{id} — confirm both responses returned",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "const json = pm.response.json();",
+              "pm.test('Session exists', () => pm.expect(json.session).to.be.an('object'));",
+              "pm.test('Returns 2 responses', () => pm.expect(json.responses.length).to.eql(2));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }],
+        "url": { "raw": "{{baseUrl}}/sessions/{{sessionId}}", "host": ["{{baseUrl}}"], "path": ["sessions", "{{sessionId}}"] }
+      }
+    },
+    {
+      "name": "9. PATCH /sessions/{id}/abandon — confirm abandoned",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "pm.test('Session abandoned', () => pm.expect(pm.response.json().message).to.eql('Session abandoned'));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }],
+        "url": { "raw": "{{baseUrl}}/sessions/{{sessionId}}/abandon", "host": ["{{baseUrl}}"], "path": ["sessions", "{{sessionId}}", "abandon"] }
+      }
+    },
+    {
+      "name": "10. GET /sessions/{id} — confirm partial=true and abandoned",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "const json = pm.response.json();",
+              "pm.test('Status is abandoned', () => pm.expect(json.session.status).to.eql('abandoned'));",
+              "pm.test('Partial is true', () => pm.expect(json.session.partial).to.eql(true));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{jwt_token}}" }],
+        "url": { "raw": "{{baseUrl}}/sessions/{{sessionId}}", "host": ["{{baseUrl}}"], "path": ["sessions", "{{sessionId}}"] }
+      }
+    }
+  ]
+}
