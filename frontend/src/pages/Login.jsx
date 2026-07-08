@@ -51,7 +51,7 @@ export default function Login() {
         password: formData.password,
       });
 
-       localStorage.setItem("hiremate_token", res.data.token);
+       localStorage.setItem("hiremate_token", res.data.accessToken);
        localStorage.setItem("hiremate_refresh", res.data.refreshToken);
        navigate("/dashboard");
       }catch (err) {

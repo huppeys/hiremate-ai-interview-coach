@@ -65,19 +65,19 @@ export default function SessionConfig() {
     setStep((s) => Math.max(s - 1, 1));
   }
 
-  async function handleStartSession() {
+async function handleStartSession() {
     if (!validateStep()) return;
 
     setServerError("");
     setIsSubmitting(true);
     try {
-      const res = await api.post("/sessions", {
-        userId: "11111111-1111-1111-1111-111111111111",
+      const res = await api.post("/questions/generate", {
         interviewType: config.interviewType,
-        targetRole: config.role,
+        role: config.role,
         industry: config.industry,
+        experienceLevel: config.experienceLevel,
       });
-      const sessionId = res.data.id;
+      const sessionId = res.data.questions.sessionId;
       navigate(`/interview/${sessionId}`);
     } catch (err) {
       setServerError(

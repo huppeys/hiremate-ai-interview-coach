@@ -2,18 +2,15 @@ const express = require("express");
 const router = express.Router();
 const { generateQuestions, getSession } = require("../services/aiService");
 const { generateFollowUp } = require("../services/llmService");
-
+const authMiddleware = require("../middleware/authMiddleware");
 // POST /api/questions/generate
 // Body: { sessionId, interviewType, role, industry, experienceLevel, resumeText?, count? }
-router.post("/generate", async (req, res) => {
+router.post("/generate", authMiddleware, async (req, res) => {
   try {
-    const { sessionId, ...config } = req.body;
+    const config = req.body;
+    const userId = req.user.id;
 
-    if (!sessionId) {
-      return res.status(400).json({ message: "sessionId is required" });
-    }
-
-    const questions = await generateQuestions(sessionId, config);
+    const questions = await generateQuestions(userId, config);
     res.json({ questions });
   } catch (err) {
     console.error(err);

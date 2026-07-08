@@ -64,7 +64,7 @@ export default function SignUp() {
         password: formData.password,
       });
 
-      localStorage.setItem("hiremate_token", res.data.token);
+      localStorage.setItem("hiremate_token", res.data.accessToken);
       navigate("/profile-setup");
     } catch (err) {
       if (err.response?.status === 409) {
