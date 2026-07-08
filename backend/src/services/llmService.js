@@ -1,10 +1,11 @@
-const Anthropic = require("@anthropic-ai/sdk");
+const OpenAI = require("openai");
 
-const client = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
+const client = new OpenAI({
+  baseURL: "https://openrouter.ai/api/v1",
+  apiKey: process.env.OPENROUTER_API_KEY,
 });
 
-const MODEL = "claude-sonnet-4-6";
+const MODEL = "anthropic/claude-sonnet-4.5";
 const MAX_RETRIES = 3;
 const BASE_DELAY_MS = 1000;
 
@@ -13,16 +14,18 @@ async function callClaude({ system, messages, maxTokens = 2048 }) {
 
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
     try {
-      const response = await client.messages.create({
-        model: MODEL,
-        max_tokens: maxTokens,
-        system,
-        messages,
-      });
+const response = await client.chat.completions.create({
+  model: MODEL,
+  max_tokens: maxTokens,
+  messages: [
+    { role: "system", content: system },
+    ...messages,
+  ],
+});
 
-      const textBlock = response.content.find((b) => b.type === "text");
-      if (!textBlock) throw new Error("No text content returned from LLM");
-      return textBlock.text;
+const text = response.choices[0]?.message?.content;
+if (!text) throw new Error("No text content returned from LLM");
+return text;
     } catch (err) {
       lastError = err;
       const status = err?.status;

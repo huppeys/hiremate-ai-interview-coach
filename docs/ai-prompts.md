@@ -148,3 +148,7 @@ One specific, actionable improvement suggestion (1-2 sentences).
 ## 5. Environment Variables Required
 Add to `backend/.env` (never commit this file).
 
+- `OPENROUTER_API_KEY` — API key from OpenRouter (openrouter.ai), used to call Claude models for question generation and follow-up questions
+- `PORT` — port the backend server runs on (default: 5000)
+- `OPENAI_API_KEY` — (pending) API key for OpenAI Whisper, needed for audio transcription in interview sessions — not yet active, currently commented out in sessions.js
+
