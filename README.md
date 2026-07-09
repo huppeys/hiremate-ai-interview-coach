@@ -15,7 +15,7 @@ analyzes performance, and tracks progress over time.
 ## Tech Stack
 - Frontend: React.js (Vite)
 - Backend: Node.js + Express
-- Database: Firebase Firestore
+- Database: Supabase
 - AI: Anthropic Claude API
 - Hosting: AWS / Google Cloud
 
