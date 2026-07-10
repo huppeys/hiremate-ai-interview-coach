@@ -9,7 +9,7 @@ const MODEL = "anthropic/claude-sonnet-4.5";
 const MAX_RETRIES = 3;
 const BASE_DELAY_MS = 1000;
 
-async function callClaude({ system, messages, maxTokens = 2048 }) {
+async function callClaude({ system, messages, maxTokens = 1500 }) {
   let lastError;
 
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
@@ -100,7 +100,7 @@ Rules:
   const raw = await callClaude({
     system,
     messages: [{ role: "user", content: userMessage }],
-    maxTokens: 2048,
+    maxTokens: 1500,
   });
 
   const questions = parseJsonResponse(raw);
