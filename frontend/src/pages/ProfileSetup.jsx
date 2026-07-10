@@ -85,9 +85,9 @@ export default function ProfileSetup() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-100 flex items-center justify-center px-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
-        <h1 className="text-2xl font-bold text-indigo-700 mb-1">
+        <h1 className="text-2xl font-bold text-teal-800 mb-1">
           Set up your profile
         </h1>
         <p className="text-sm text-gray-500 mb-6">
@@ -106,7 +106,7 @@ export default function ProfileSetup() {
               value={formData.name}
               onChange={handleChange}
               placeholder="Enter your full name"
-              className={`mt-1 w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 ${
+              className={`mt-1 w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-400 ${
                 errors.name ? "border-red-400" : "border-gray-300"
               }`}
             />
@@ -124,7 +124,7 @@ export default function ProfileSetup() {
               name="educationLevel"
               value={formData.educationLevel}
               onChange={handleChange}
-              className={`mt-1 w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white ${
+              className={`mt-1 w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-400 bg-white ${
                 errors.educationLevel ? "border-red-400" : "border-gray-300"
               }`}
             >
@@ -151,7 +151,7 @@ export default function ProfileSetup() {
               value={formData.targetRole}
               onChange={handleChange}
               placeholder="e.g. Software Engineer Intern"
-              className={`mt-1 w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 ${
+              className={`mt-1 w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-400 ${
                 errors.targetRole ? "border-red-400" : "border-gray-300"
               }`}
             />
@@ -169,7 +169,7 @@ export default function ProfileSetup() {
               name="targetIndustry"
               value={formData.targetIndustry}
               onChange={handleChange}
-              className={`mt-1 w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white ${
+              className={`mt-1 w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-400 bg-white ${
                 errors.targetIndustry ? "border-red-400" : "border-gray-300"
               }`}
             >
@@ -192,7 +192,7 @@ export default function ProfileSetup() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white font-medium py-2 rounded-lg transition"
+            className="w-full bg-teal-700 hover:bg-teal-800 disabled:opacity-60 text-white font-medium py-2 rounded-lg transition"
           >
             {isSubmitting ? "Saving..." : "Save & Continue"}
           </button>

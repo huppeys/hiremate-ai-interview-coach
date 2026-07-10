@@ -80,9 +80,9 @@ export default function SignUp() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-teal-100 px-4">
       <div className="w-full max-w-sm bg-white rounded-2xl shadow-lg p-8">
-        <h1 className="text-2xl font-bold text-center text-indigo-700">
+        <h1 className="text-2xl font-bold text-center text-teal-800">
           Create your account
         </h1>
         <p className="text-center text-sm text-gray-500 mb-6">
@@ -101,7 +101,7 @@ export default function SignUp() {
               value={formData.name}
               onChange={handleChange}
               placeholder="Enter your full name"
-              className={`mt-1 w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 ${
+              className={`mt-1 w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-400 ${
                 errors.name ? "border-red-400" : "border-gray-300"
               }`}
             />
@@ -119,7 +119,7 @@ export default function SignUp() {
               value={formData.email}
               onChange={handleChange}
               placeholder="Enter your email"
-              className={`mt-1 w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 ${
+              className={`mt-1 w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-400 ${
                 errors.email ? "border-red-400" : "border-gray-300"
               }`}
             />
@@ -137,7 +137,7 @@ export default function SignUp() {
               value={formData.password}
               onChange={handleChange}
               placeholder="At least 8 characters"
-              className={`mt-1 w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 ${
+              className={`mt-1 w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-400 ${
                 errors.password ? "border-red-400" : "border-gray-300"
               }`}
             />
@@ -157,7 +157,7 @@ export default function SignUp() {
               value={formData.confirmPassword}
               onChange={handleChange}
               placeholder="Re-enter your password"
-              className={`mt-1 w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 ${
+              className={`mt-1 w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-400 ${
                 errors.confirmPassword ? "border-red-400" : "border-gray-300"
               }`}
             />
@@ -173,7 +173,7 @@ export default function SignUp() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white font-medium py-2 rounded-lg transition"
+            className="w-full bg-teal-700 hover:bg-teal-800 disabled:opacity-60 text-white font-medium py-2 rounded-lg transition"
           >
             {isSubmitting ? "Creating account..." : "Register"}
           </button>
@@ -181,7 +181,7 @@ export default function SignUp() {
 
         <p className="text-center text-sm text-gray-500 mt-4">
           Already have an account?{" "}
-          <Link to="/login" className="text-indigo-600 hover:underline">
+          <Link to="/login" className="text-teal-700 hover:underline">
             Log in
           </Link>
         </p>
