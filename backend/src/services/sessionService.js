@@ -19,16 +19,18 @@ async function createSession(userId, interviewType, targetRole, industry) {
   return data[0];
 }
 
-async function saveQuestion(sessionId, questionText, questionType) {
+async function saveQuestion(sessionId, questionText, questionType, difficulty = null, tips = null) {
+  const row = {
+    session_id: sessionId,
+    question_text: questionText,
+    question_type: questionType,
+  };
+  if (difficulty !== null) row.difficulty = difficulty;
+  if (tips !== null) row.tips = tips;
+
   const { data, error } = await supabase
     .from("questions")
-    .insert([
-      {
-        session_id: sessionId,
-        question_text: questionText,
-        question_type: questionType,
-      },
-    ])
+    .insert([row])
     .select();
 
   if (error) throw error;
@@ -83,9 +85,15 @@ async function getSession(sessionId) {
 
   if (questionsError) throw questionsError;
 
-  return {
+return {
     ...session,
-    questions,
+    questions: questions.map((q) => ({
+      id: q.id,
+      question: q.question_text,
+      type: q.question_type,
+      difficulty: q.difficulty,
+      tips: q.tips,
+    })),
   };
 }
 

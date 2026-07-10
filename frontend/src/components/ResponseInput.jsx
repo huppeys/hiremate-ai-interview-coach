@@ -1,8 +1,10 @@
 import { useState, useRef } from "react";
+import api from "../api/axiosConfig";
 
-export default function ResponseInput({ value, onChange }) {
+export default function ResponseInput({ value, onChange, sessionId }) {
   const [mode, setMode] = useState("text");
   const [recording, setRecording] = useState(false);
+  const [transcribing, setTranscribing] = useState(false);
   const [recordingError, setRecordingError] = useState("");
   const mediaRecorderRef = useRef(null);
   const chunksRef = useRef([]);
@@ -19,9 +21,27 @@ export default function ResponseInput({ value, onChange }) {
         if (e.data.size > 0) chunksRef.current.push(e.data);
       };
 
-      mediaRecorder.onstop = () => {
-        onChange("[Voice response recorded — transcription pending backend integration]");
+      mediaRecorder.onstop = async () => {
         stream.getTracks().forEach((track) => track.stop());
+
+        const blob = new Blob(chunksRef.current, { type: "audio/webm" });
+        const formData = new FormData();
+        formData.append("audio", blob, "response.webm");
+
+        setTranscribing(true);
+        setRecordingError("");
+        try {
+          const res = await api.post(`/sessions/${sessionId}/audio`, formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+          });
+          onChange(res.data.transcript);
+        } catch (err) {
+          setRecordingError(
+            "Couldn't transcribe your recording. Please try again or switch to Text mode."
+          );
+        } finally {
+          setTranscribing(false);
+        }
       };
 
       mediaRecorder.start();
@@ -90,12 +110,17 @@ export default function ResponseInput({ value, onChange }) {
                 <button
                   type="button"
                   onClick={startRecording}
-                  className="w-16 h-16 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white text-2xl flex items-center justify-center shadow-lg transition mb-3"
+                  disabled={transcribing}
+                  className="w-16 h-16 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white text-2xl flex items-center justify-center shadow-lg transition mb-3 disabled:opacity-50"
                 >
                   🎙️
                 </button>
                 <p className="text-sm text-gray-500">
-                  {value ? "Recording saved. Tap to re-record." : "Tap to start recording"}
+                  {transcribing
+                    ? "Transcribing your response..."
+                    : value
+                    ? "Recording saved. Tap to re-record."
+                    : "Tap to start recording"}
                 </p>
               </>
             ) : (
@@ -114,10 +139,17 @@ export default function ResponseInput({ value, onChange }) {
             )}
           </div>
 
-          {value && (
-            <div className="mt-3 p-3 bg-white border border-gray-200 rounded-lg">
-              <p className="text-xs text-gray-400 mb-1">Recorded response:</p>
-              <p className="text-sm text-gray-700">{value}</p>
+          {value && !transcribing && (
+            <div className="mt-3">
+              <p className="text-xs text-gray-400 mb-1">
+                Transcript (edit if needed):
+              </p>
+              <textarea
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+                rows={4}
+                className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"
+              />
             </div>
           )}
 

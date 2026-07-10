@@ -207,7 +207,7 @@ export default function InterviewSession() {
         )}
 
         {!feedback && (
-          <ResponseInput value={answer} onChange={setAnswer} />
+          <ResponseInput value={answer} onChange={setAnswer} sessionId={sessionId} />
         )}
 
         {!feedback ? (

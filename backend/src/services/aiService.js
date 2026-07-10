@@ -42,7 +42,7 @@ async function generateQuestions(userId, config) {
   const session = await createSession(userId, interviewType, role, industry);
 
   // Save each question to Supabase
-  for (const q of questions) {
+for (const q of questions) {
     await saveQuestion(session.id, q.question, q.type);
   }
 
