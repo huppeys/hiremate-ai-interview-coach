@@ -19,11 +19,7 @@ const authMiddleware = require("../middleware/authMiddleware");
 const { extractResumeText } = require("../services/resumeService");
 const supabase = require("../services/supabase");
 const { transcribeAudio } = require("../services/llmService");
-const {
-  createSession,
-  saveQuestion,
-  saveResponse,
-} = require("../services/sessionService");
+const { saveQuestion } = require("../services/sessionService");
 
 const configValidation = [
   body("interviewType")
@@ -56,71 +52,65 @@ const resumeUpload = multer({
 });
 
 // POST /api/sessions/config
-router.post("/config", authMiddleware, resumeUpload.single("resume"), configValidation, async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
+router.post(
+  "/config",
+  authMiddleware,
+  resumeUpload.single("resume"),
+  configValidation,
+  async (req, res) => {
+    const errors = validationResult(req);
 
-  const sessionId = uuidv4();
-  const resumeText = req.file ? await extractResumeText(req.file.buffer) : "";
-  const { interviewType, targetRole, industry, experienceLevel } = req.body;
-
-  const { error } = await supabase.from("sessions").insert([{
-    session_id:       sessionId,
-    user_id:          req.user.id,
-    interview_type:   interviewType,
-    target_role:      targetRole,
-    industry:         industry,
-    experience_level: experienceLevel,
-    resume_text:      resumeText,
-    status:           "configuring",
-    questions:        [],
-    created_at:       new Date().toISOString(),
-  }]);
-
-  if (error) {
-    console.error("Supabase insert error:", error.message);
-    return res.status(500).json({ message: "Failed to create session", error: error.message });
-  }
-
-  res.status(201).json({ sessionId });
-});
-
-// Multer config: store audio in memory (max 25MB)
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 25 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => {
-    const allowed = ["audio/webm", "audio/mp4", "audio/mpeg", "audio/wav"];
-    if (allowed.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(new Error("Only audio files are allowed"));
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
-  },
-});
 
-// POST /api/sessions
-router.post("/", authMiddleware, async (req, res) => {
-  try {
-    const { interviewType, targetRole, industry } = req.body;
+    try {
+      const resumeText = req.file
+        ? await extractResumeText(req.file.buffer)
+        : "";
 
-    const session = await createSession(
-      req.user.id,
-      interviewType,
-      targetRole,
-      industry
-    );
+      const {
+        interviewType,
+        targetRole,
+        industry,
+        experienceLevel,
+      } = req.body;
 
-    res.status(201).json(session);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+      const { data: session, error } = await supabase
+        .from("sessions")
+        .insert([
+          {
+            user_id: req.user.id,
+            interview_type: interviewType,
+            target_role: targetRole,
+            industry,
+            experience_level: experienceLevel,
+            resume_text: resumeText,
+            status: "configuring",
+            questions: [],
+          },
+        ])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      res.status(201).json({
+        sessionId: session.id,
+        session,
+      });
+    } catch (error) {
+      console.error("Session creation error:", error);
+
+      res.status(500).json({
+        message: "Failed to create session",
+        error: error.message,
+      });
+    }
   }
-});
-
+);
 // POST /api/sessions/:sessionId/questions
-router.post("/:sessionId/questions", async (req, res) => {
+router.post("/:sessionId/questions", authMiddleware, async (req, res) => {
   try {
     const { sessionId } = req.params;
     const { questionText, questionType } = req.body;
@@ -157,19 +147,22 @@ router.post("/:sessionId/responses", authMiddleware, responseValidation, async (
     const { data: sessions, error: sessionError } = await supabase
       .from("sessions")
       .select("*")
-      .eq("session_id", sessionId);
+      .eq("id", Number(sessionId));
 
     if (sessionError) throw sessionError;
     if (!sessions || sessions.length === 0) {
       return res.status(404).json({ message: "Session not found" });
+    }
+    if (sessions[0].user_id !== req.user.id) {
+      return res.status(403).json({ message: "Access denied" });
     }
 
     // Save response
     const responseId = uuidv4();
     const { error: insertError } = await supabase.from("responses").insert([{
       response_id:   responseId,
-      session_id:    sessionId,
-      question_id:   questionId,
+      session_id:    Number(sessionId),
+      question_id:   Number(questionId),
       response_text: responseText,
       audio_url:     audioUrl,
       submitted_at:  new Date().toISOString(),
@@ -183,12 +176,15 @@ router.post("/:sessionId/responses", authMiddleware, responseValidation, async (
       await supabase
         .from("sessions")
         .update({ status: "in-progress" })
-        .eq("session_id", sessionId);
+        .eq("id", Number(sessionId));
     }
 
     res.status(201).json({ responseId });
-  } catch (error) {
-    res.status(500).json({ message: "Something went wrong", error: error.message });
+    } catch (error) {
+    res.status(500).json({
+      message: "Something went wrong",
+      error: error.message,
+    });
   }
 });
 
@@ -201,13 +197,13 @@ router.get("/:sessionId", authMiddleware, async (req, res) => {
     const { data: sessions, error: sessionError } = await supabase
       .from("sessions")
       .select("*")
-      .eq("session_id", sessionId);
+      .eq("id", Number(sessionId));
 
     if (sessionError) throw sessionError;
     if (!sessions || sessions.length === 0) {
       return res.status(404).json({ message: "Session not found" });
     }
-
+    
     const session = sessions[0];
 
     if (session.user_id !== req.user.id) {
@@ -218,7 +214,7 @@ router.get("/:sessionId", authMiddleware, async (req, res) => {
     const { data: responses, error: responsesError } = await supabase
       .from("responses")
       .select("*")
-      .eq("session_id", sessionId)
+      .eq("session_id", Number(sessionId))
       .order("submitted_at", { ascending: true });
 
     if (responsesError) throw responsesError;
@@ -237,7 +233,7 @@ router.patch("/:sessionId/pause", authMiddleware, async (req, res) => {
     const { data: sessions, error: fetchError } = await supabase
       .from("sessions")
       .select("*")
-      .eq("session_id", sessionId);
+      .eq("id", Number(sessionId));
 
     if (fetchError) throw fetchError;
     if (!sessions || sessions.length === 0) {
@@ -251,7 +247,7 @@ router.patch("/:sessionId/pause", authMiddleware, async (req, res) => {
     const { error: updateError } = await supabase
       .from("sessions")
       .update({ status: "paused", paused_at: new Date().toISOString() })
-      .eq("session_id", sessionId);
+      .eq("id", Number(sessionId));
 
     if (updateError) throw updateError;
 
@@ -269,9 +265,10 @@ router.patch("/:sessionId/abandon", authMiddleware, async (req, res) => {
     const { data: sessions, error: fetchError } = await supabase
       .from("sessions")
       .select("*")
-      .eq("session_id", sessionId);
+      .eq("id", Number(sessionId));
 
     if (fetchError) throw fetchError;
+    
     if (!sessions || sessions.length === 0) {
       return res.status(404).json({ message: "Session not found" });
     }
@@ -279,7 +276,6 @@ router.patch("/:sessionId/abandon", authMiddleware, async (req, res) => {
     if (sessions[0].user_id !== req.user.id) {
       return res.status(403).json({ message: "Access denied" });
     }
-
     const { error: updateError } = await supabase
       .from("sessions")
       .update({
@@ -287,7 +283,7 @@ router.patch("/:sessionId/abandon", authMiddleware, async (req, res) => {
         partial:      true,
         abandoned_at: new Date().toISOString(),
       })
-      .eq("session_id", sessionId);
+      .eq("id", Number(sessionId));
 
     if (updateError) throw updateError;
 
@@ -297,9 +293,27 @@ router.patch("/:sessionId/abandon", authMiddleware, async (req, res) => {
   }
 });
 
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 25 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = [
+      "audio/webm",
+      "audio/mp4",
+      "audio/mpeg",
+      "audio/wav",
+    ];
+
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only audio files are allowed"));
+    }
+  },
+});
 // POST /api/sessions/:sessionId/audio
 // Receives audio blob from frontend, transcribes via Whisper (through OpenRouter).
-router.post("/:sessionId/audio", upload.single("audio"), async (req, res) => {
+router.post("/:sessionId/audio", authMiddleware, upload.single("audio"), async (req, res) => {
   try {
     const { sessionId } = req.params;
 
