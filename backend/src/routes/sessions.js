@@ -101,12 +101,12 @@ const upload = multer({
 });
 
 // POST /api/sessions
-router.post("/", async (req, res) => {
+router.post("/", authMiddleware, async (req, res) => {
   try {
-    const { userId, interviewType, targetRole, industry } = req.body;
+    const { interviewType, targetRole, industry } = req.body;
 
     const session = await createSession(
-      userId,
+      req.user.id,
       interviewType,
       targetRole,
       industry
