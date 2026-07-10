@@ -73,7 +73,7 @@ export default function ResponseInput({ value, onChange, sessionId }) {
           onClick={() => switchMode("text")}
           className={`px-4 py-2 text-sm font-medium transition ${
             mode === "text"
-              ? "bg-indigo-600 text-white"
+              ? "bg-teal-700 text-white"
               : "bg-white text-gray-600 hover:bg-gray-50"
           }`}
         >
@@ -84,7 +84,7 @@ export default function ResponseInput({ value, onChange, sessionId }) {
           onClick={() => switchMode("voice")}
           className={`px-4 py-2 text-sm font-medium transition ${
             mode === "voice"
-              ? "bg-indigo-600 text-white"
+              ? "bg-teal-700 text-white"
               : "bg-white text-gray-600 hover:bg-gray-50"
           }`}
         >
@@ -98,20 +98,20 @@ export default function ResponseInput({ value, onChange, sessionId }) {
           onChange={(e) => onChange(e.target.value)}
           placeholder="Type your response here..."
           rows={6}
-          className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"
+          className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 resize-none"
         />
       )}
 
       {mode === "voice" && (
         <div className="w-full">
-          <div className="flex flex-col items-center justify-center border-2 border-dashed border-indigo-300 rounded-xl py-8 px-4 bg-indigo-50">
+          <div className="flex flex-col items-center justify-center border-2 border-dashed border-teal-300 rounded-xl py-8 px-4 bg-teal-50">
             {!recording ? (
               <>
                 <button
                   type="button"
                   onClick={startRecording}
                   disabled={transcribing}
-                  className="w-16 h-16 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white text-2xl flex items-center justify-center shadow-lg transition mb-3 disabled:opacity-50"
+                  className="w-16 h-16 rounded-full bg-teal-700 hover:bg-teal-800 text-white text-2xl flex items-center justify-center shadow-lg transition mb-3 disabled:opacity-50"
                 >
                   🎙️
                 </button>
@@ -139,7 +139,7 @@ export default function ResponseInput({ value, onChange, sessionId }) {
             )}
           </div>
 
-          {value && !transcribing && (
+{value && !transcribing && (
             <div className="mt-3">
               <p className="text-xs text-gray-400 mb-1">
                 Transcript (edit if needed):
@@ -148,7 +148,7 @@ export default function ResponseInput({ value, onChange, sessionId }) {
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 rows={4}
-                className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"
+                className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 resize-none"
               />
             </div>
           )}

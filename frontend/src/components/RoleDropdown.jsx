@@ -102,7 +102,7 @@ export default function RoleDropdown({ value, onChange, error }) {
         onChange={handleInputChange}
         onFocus={() => setOpen(true)}
         placeholder="e.g. Software Engineer Intern"
-        className={`w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 ${
+        className={`w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-400 ${
           error ? "border-red-400" : "border-gray-300"
         }`}
       />
@@ -113,7 +113,7 @@ export default function RoleDropdown({ value, onChange, error }) {
             <li
               key={role}
               onClick={() => handleSelect(role)}
-              className="px-3 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 cursor-pointer"
+              className="px-3 py-2 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-800 cursor-pointer"
             >
               {role}
             </li>
@@ -122,7 +122,7 @@ export default function RoleDropdown({ value, onChange, error }) {
       )}
 
       {open && filtered.length === 0 && (
-        <div className="absolute z-10 w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 px-3 py-2 text-sm text-gray-400">
+        <div className="absolute z-10 w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 px-3 py-2 text-sm text-gray-500">
           No matching roles — you can type a custom role.
         </div>
       )}

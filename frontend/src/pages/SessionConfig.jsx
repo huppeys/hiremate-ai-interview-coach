@@ -100,7 +100,7 @@ export default function SessionConfig() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-100 flex items-center justify-center px-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
         <div className="flex items-center justify-between mb-6">
           {[1, 2, 3].map((n) => (
@@ -109,9 +109,9 @@ export default function SessionConfig() {
                 className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold
                   ${
                     n === step
-                      ? "bg-indigo-600 text-white"
+                      ? "bg-teal-700 text-white"
                       : n < step
-                      ? "bg-indigo-200 text-indigo-700"
+                      ? "bg-teal-200 text-teal-800"
                       : "bg-gray-200 text-gray-500"
                   }`}
               >
@@ -120,7 +120,7 @@ export default function SessionConfig() {
               {n < 3 && (
                 <div
                   className={`flex-1 h-1 mx-1 rounded ${
-                    n < step ? "bg-indigo-300" : "bg-gray-200"
+                    n < step ? "bg-teal-300" : "bg-gray-200"
                   }`}
                 />
               )}
@@ -130,7 +130,7 @@ export default function SessionConfig() {
 
         {step === 1 && (
           <div>
-            <h2 className="text-xl font-bold text-indigo-700 mb-1">
+            <h2 className="text-xl font-bold text-teal-800 mb-1">
               Interview Type
             </h2>
             <p className="text-sm text-gray-500 mb-4">
@@ -145,8 +145,8 @@ export default function SessionConfig() {
                   className={`py-4 rounded-xl border text-sm font-medium transition
                     ${
                       config.interviewType === t.value
-                        ? "border-indigo-600 bg-indigo-50 text-indigo-700"
-                        : "border-gray-300 text-gray-600 hover:border-indigo-300"
+                        ? "border-teal-700 bg-teal-50 text-teal-800"
+                        : "border-gray-300 text-gray-600 hover:border-teal-300"
                     }`}
                 >
                   {t.label}
@@ -161,7 +161,7 @@ export default function SessionConfig() {
 
         {step === 2 && (
           <div>
-            <h2 className="text-xl font-bold text-indigo-700 mb-1">
+            <h2 className="text-xl font-bold text-teal-800 mb-1">
               Role &amp; Industry
             </h2>
             <p className="text-sm text-gray-500 mb-4">
@@ -190,7 +190,7 @@ export default function SessionConfig() {
                   value={config.industry}
                   onChange={(e) => updateField("industry", e.target.value)}
                   placeholder="e.g. Technology, Healthcare, Business"
-                  className={`w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 ${
+                  className={`w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-400 ${
                     errors.industry ? "border-red-400" : "border-gray-300"
                   }`}
                 />
@@ -204,7 +204,7 @@ export default function SessionConfig() {
 
         {step === 3 && (
           <div>
-            <h2 className="text-xl font-bold text-indigo-700 mb-1">
+            <h2 className="text-xl font-bold text-teal-800 mb-1">
               Experience Level
             </h2>
             <p className="text-sm text-gray-500 mb-4">
@@ -217,8 +217,8 @@ export default function SessionConfig() {
                   className={`flex items-center gap-3 border rounded-lg px-4 py-3 cursor-pointer transition
                     ${
                       config.experienceLevel === lvl.value
-                        ? "border-indigo-600 bg-indigo-50"
-                        : "border-gray-300 hover:border-indigo-300"
+                        ? "border-teal-700 bg-teal-50"
+                        : "border-gray-300 hover:border-teal-300"
                     }`}
                 >
                   <input
@@ -226,10 +226,8 @@ export default function SessionConfig() {
                     name="experienceLevel"
                     value={lvl.value}
                     checked={config.experienceLevel === lvl.value}
-                    onChange={(e) =>
-                      updateField("experienceLevel", e.target.value)
-                    }
-                    className="accent-indigo-600"
+                    onChange={(e) => updateField("experienceLevel", e.target.value)}
+                    className="accent-teal-700"
                   />
                   <span className="text-sm font-medium text-gray-700">
                     {lvl.label}
@@ -264,7 +262,7 @@ export default function SessionConfig() {
             <button
               type="button"
               onClick={handleNext}
-              className="px-6 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium transition"
+              className="px-6 py-2 rounded-lg bg-teal-700 hover:bg-teal-800 text-white text-sm font-medium transition"
             >
               Next
             </button>
@@ -273,7 +271,7 @@ export default function SessionConfig() {
               type="button"
               onClick={handleStartSession}
               disabled={isSubmitting}
-              className="px-6 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white text-sm font-medium transition"
+              className="px-6 py-2 rounded-lg bg-teal-700 hover:bg-teal-800 disabled:opacity-60 text-white text-sm font-medium transition"
             >
               {isSubmitting ? "Starting..." : "Start Session"}
             </button>
