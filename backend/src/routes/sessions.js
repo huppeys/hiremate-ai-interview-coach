@@ -9,6 +9,7 @@
  * POST   /:sessionId/questions      Save a question to a session
  * POST   /:sessionId/audio          Receive audio blob for Whisper transcription
  */
+
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
@@ -17,7 +18,7 @@ const { v4: uuidv4 } = require("uuid");
 const authMiddleware = require("../middleware/authMiddleware");
 const { extractResumeText } = require("../services/resumeService");
 const supabase = require("../services/supabase");
-
+const { transcribeAudio } = require("../services/llmService");
 const {
   createSession,
   saveQuestion,
@@ -297,8 +298,7 @@ router.patch("/:sessionId/abandon", authMiddleware, async (req, res) => {
 });
 
 // POST /api/sessions/:sessionId/audio
-// Receives audio blob from frontend, transcribes via Whisper (OpenAI).
-// TODO: Uncomment the Whisper call once OPENAI_API_KEY has credits.
+// Receives audio blob from frontend, transcribes via Whisper (through OpenRouter).
 router.post("/:sessionId/audio", upload.single("audio"), async (req, res) => {
   try {
     const { sessionId } = req.params;
@@ -307,20 +307,11 @@ router.post("/:sessionId/audio", upload.single("audio"), async (req, res) => {
       return res.status(400).json({ message: "No audio file provided." });
     }
 
-    // TODO: Replace this placeholder with real Whisper transcription:
-    //
-    // const OpenAI = require("openai");
-    // const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-    // const file = new File([req.file.buffer], "audio.webm", { type: req.file.mimetype });
-    // const transcription = await openai.audio.transcriptions.create({
-    //   file,
-    //   model: "whisper-1",
-    // });
-    // const transcript = transcription.text;
-
-    // Placeholder transcript until Whisper is enabled
-    const transcript =
-      "[Audio received — Whisper transcription pending OpenAI API credits]";
+    const transcript = await transcribeAudio(
+      req.file.buffer,
+      req.file.originalname || "audio.webm",
+      req.file.mimetype
+    );
 
     res.json({
       sessionId,
@@ -329,8 +320,12 @@ router.post("/:sessionId/audio", upload.single("audio"), async (req, res) => {
     });
   } catch (error) {
     console.error("Audio upload error:", error);
+    if (error.message === "TRANSCRIPTION_FAILED") {
+      return res.status(503).json({
+        message: "Audio transcription is currently unavailable. Please try again.",
+      });
+    }
     res.status(500).json({ message: error.message });
   }
 });
-
 module.exports = router;

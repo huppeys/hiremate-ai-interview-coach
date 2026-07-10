@@ -1,4 +1,5 @@
 const OpenAI = require("openai");
+const { toFile } = require("openai");
 
 const client = new OpenAI({
   baseURL: "https://openrouter.ai/api/v1",
@@ -144,7 +145,22 @@ Respond with the JSON object only.
   return result.followUpQuestion || null;
 }
 
+async function transcribeAudio(fileBuffer, filename, mimetype) {
+  try {
+    const file = await toFile(fileBuffer, filename, { type: mimetype });
+    const transcription = await client.audio.transcriptions.create({
+      file,
+      model: "openai/whisper-large-v3",
+    });
+    return transcription.text;
+  } catch (err) {
+    console.error("Whisper transcription failed:", err.message);
+    throw new Error("TRANSCRIPTION_FAILED");
+  }
+}
+
 module.exports = {
   generateQuestions,
   generateFollowUp,
+  transcribeAudio,
 };
