@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axiosConfig";
 import RoleDropdown from "../components/RoleDropdown";
+import ResumeUpload from "../components/ResumeUpload";
 
 const INTERVIEW_TYPES = [
   { value: "behavioral", label: "Behavioral" },
@@ -19,6 +20,7 @@ export default function SessionConfig() {
   const navigate = useNavigate();
 
   const [step, setStep] = useState(1);
+  const [resumeFile, setResumeFile] = useState(null);
 
   const [config, setConfig] = useState({
     interviewType: "",
@@ -65,18 +67,26 @@ export default function SessionConfig() {
     setStep((s) => Math.max(s - 1, 1));
   }
 
-async function handleStartSession() {
+  async function handleStartSession() {
     if (!validateStep()) return;
 
     setServerError("");
     setIsSubmitting(true);
     try {
-      const res = await api.post("/questions/generate", {
-        interviewType: config.interviewType,
-        role: config.role,
-        industry: config.industry,
-        experienceLevel: config.experienceLevel,
+      // Use FormData to support optional resume file upload
+      const formData = new FormData();
+      formData.append("interviewType", config.interviewType);
+      formData.append("role", config.role);
+      formData.append("industry", config.industry);
+      formData.append("experienceLevel", config.experienceLevel);
+      if (resumeFile) {
+        formData.append("resume", resumeFile);
+      }
+
+      const res = await api.post("/questions/generate", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
+
       const sessionId = res.data.questions.sessionId;
       navigate(`/interview/${sessionId}`);
     } catch (err) {
@@ -126,7 +136,6 @@ async function handleStartSession() {
             <p className="text-sm text-gray-500 mb-4">
               What kind of questions would you like to practice?
             </p>
-
             <div className="grid grid-cols-3 gap-3">
               {INTERVIEW_TYPES.map((t) => (
                 <button
@@ -158,7 +167,6 @@ async function handleStartSession() {
             <p className="text-sm text-gray-500 mb-4">
               Tell us what you're preparing for.
             </p>
-
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -173,7 +181,6 @@ async function handleStartSession() {
                   <p className="text-red-500 text-xs mt-1">{errors.role}</p>
                 )}
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Industry
@@ -203,7 +210,6 @@ async function handleStartSession() {
             <p className="text-sm text-gray-500 mb-4">
               This helps us calibrate question difficulty.
             </p>
-
             <div className="space-y-2">
               {EXPERIENCE_LEVELS.map((lvl) => (
                 <label
@@ -220,7 +226,9 @@ async function handleStartSession() {
                     name="experienceLevel"
                     value={lvl.value}
                     checked={config.experienceLevel === lvl.value}
-                    onChange={(e) => updateField("experienceLevel", e.target.value)}
+                    onChange={(e) =>
+                      updateField("experienceLevel", e.target.value)
+                    }
                     className="accent-indigo-600"
                   />
                   <span className="text-sm font-medium text-gray-700">
@@ -230,8 +238,11 @@ async function handleStartSession() {
               ))}
             </div>
             {errors.experienceLevel && (
-              <p className="text-red-500 text-xs mt-2">{errors.experienceLevel}</p>
+              <p className="text-red-500 text-xs mt-2">
+                {errors.experienceLevel}
+              </p>
             )}
+            <ResumeUpload onFileSelect={setResumeFile} />
           </div>
         )}
 
