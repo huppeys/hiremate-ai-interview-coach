@@ -10,20 +10,19 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+
 // Routes
 const authRoutes = require('./routes/auth');
 app.use('/api/auth', authRoutes);
 
-if (process.env.NODE_ENV !== "test") {
-  const questionsRoutes = require("./routes/questions");
-  app.use("/api/questions", questionsRoutes);
+const questionsRoutes = require("./routes/questions");
+app.use("/api/questions", questionsRoutes);
 
-  const sessionsRoutes = require("./routes/sessions");
-  app.use("/api/sessions", sessionsRoutes);
+const sessionsRoutes = require("./routes/sessions");
+app.use("/api/sessions", sessionsRoutes);
 
-  const profileRoutes = require("./routes/profile");
-  app.use("/api/profile", profileRoutes);
-}
+const profileRoutes = require("./routes/profile");
+app.use("/api/profile", profileRoutes);
 
 // Test route
 app.get("/api/health", (req, res) => {
