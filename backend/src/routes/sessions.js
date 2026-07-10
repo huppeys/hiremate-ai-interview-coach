@@ -291,6 +291,24 @@ router.patch("/:sessionId/abandon", authMiddleware, async (req, res) => {
   }
 });
 
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 25 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = [
+      "audio/webm",
+      "audio/mp4",
+      "audio/mpeg",
+      "audio/wav",
+    ];
+
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only audio files are allowed"));
+    }
+  },
+});
 // POST /api/sessions/:sessionId/audio
 // Receives audio blob from frontend, transcribes via Whisper (OpenAI).
 // TODO: Uncomment the Whisper call once OPENAI_API_KEY has credits.
