@@ -109,7 +109,7 @@ router.post(
   }
 );
 // POST /api/sessions/:sessionId/questions
-router.post("/:sessionId/questions", async (req, res) => {
+router.post("/:sessionId/questions", authMiddleware, async (req, res) => {
   try {
     const { sessionId } = req.params;
     const { questionText, questionType } = req.body;
@@ -151,6 +151,9 @@ router.post("/:sessionId/responses", authMiddleware, responseValidation, async (
     if (sessionError) throw sessionError;
     if (!sessions || sessions.length === 0) {
       return res.status(404).json({ message: "Session not found" });
+    }
+    if (sessions[0].user_id !== req.user.id) {
+      return res.status(403).json({ message: "Access denied" });
     }
 
     // Save response
@@ -272,8 +275,6 @@ router.patch("/:sessionId/abandon", authMiddleware, async (req, res) => {
     if (sessions[0].user_id !== req.user.id) {
       return res.status(403).json({ message: "Access denied" });
     }
-    const responseId = uuidv4();
-
     const { error: updateError } = await supabase
       .from("sessions")
       .update({
@@ -312,7 +313,7 @@ const upload = multer({
 // POST /api/sessions/:sessionId/audio
 // Receives audio blob from frontend, transcribes via Whisper (OpenAI).
 // TODO: Uncomment the Whisper call once OPENAI_API_KEY has credits.
-router.post("/:sessionId/audio", upload.single("audio"), async (req, res) => {
+router.post("/:sessionId/audio", authMiddleware, upload.single("audio"), async (req, res) => {
   try {
     const { sessionId } = req.params;
 
