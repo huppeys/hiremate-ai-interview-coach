@@ -1,10 +1,16 @@
 const OpenAI = require("openai");
 const { toFile } = require("openai");
 
-const client = new OpenAI({
-  baseURL: "https://openrouter.ai/api/v1",
-  apiKey: process.env.OPENROUTER_API_KEY,
-});
+let client = null;
+function getClient() {
+  if (!client) {
+    client = new OpenAI({
+      baseURL: "https://openrouter.ai/api/v1",
+      apiKey: process.env.OPENROUTER_API_KEY || "placeholder",
+    });
+  }
+  return client;
+}
 
 const MODEL = "anthropic/claude-sonnet-4.5";
 const MAX_RETRIES = 3;
@@ -15,7 +21,7 @@ async function callClaude({ system, messages, maxTokens = 1500 }) {
 
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
     try {
-const response = await client.chat.completions.create({
+const response = await getClient().chat.completions.create({
   model: MODEL,
   max_tokens: maxTokens,
   messages: [
@@ -53,6 +59,29 @@ function parseJsonResponse(raw) {
   }
 }
 
+function getMockQuestions(interviewType, role, count) {
+  const behavioral = [
+    { id: "b1", question: "Tell me about a time you faced a difficult challenge at work or school. How did you handle it?", type: "behavioral", difficulty: "medium", tips: "Use the STAR method: Situation, Task, Action, Result." },
+    { id: "b2", question: "Describe a situation where you had to work with a difficult team member. What did you do?", type: "behavioral", difficulty: "medium", tips: "Focus on collaboration and communication skills." },
+    { id: "b3", question: "Give an example of a goal you set and how you achieved it.", type: "behavioral", difficulty: "easy", tips: "Be specific about the goal and measurable results." },
+    { id: "b4", question: "Tell me about a time you failed. What did you learn from it?", type: "behavioral", difficulty: "hard", tips: "Show self-awareness and growth mindset." },
+    { id: "b5", question: "Describe a time you had to prioritize multiple tasks under a deadline.", type: "behavioral", difficulty: "medium", tips: "Explain your prioritization framework." },
+    { id: "b6", question: "Tell me about a time you showed leadership without formal authority.", type: "behavioral", difficulty: "hard", tips: "Highlight influence, not just position." },
+  ];
+  const technical = [
+    { id: "t1", question: `What are the key principles you follow when designing software systems for a ${role} role?`, type: "technical", difficulty: "medium", tips: "Mention scalability, maintainability, and simplicity." },
+    { id: "t2", question: "Explain the difference between REST and GraphQL APIs.", type: "technical", difficulty: "medium", tips: "Cover trade-offs, not just definitions." },
+    { id: "t3", question: "How do you approach debugging a production issue with limited logs?", type: "technical", difficulty: "hard", tips: "Walk through a systematic elimination process." },
+    { id: "t4", question: "What is the difference between SQL and NoSQL databases? When would you use each?", type: "technical", difficulty: "easy", tips: "Give concrete use-case examples." },
+    { id: "t5", question: "How do you ensure code quality in a fast-moving team?", type: "technical", difficulty: "medium", tips: "Cover code review, testing, and CI/CD." },
+    { id: "t6", question: "Describe how you would implement authentication in a web application.", type: "technical", difficulty: "medium", tips: "Cover JWT, sessions, and security considerations." },
+  ];
+  const pool = interviewType === "technical" ? technical
+    : interviewType === "behavioral" ? behavioral
+    : [...behavioral.slice(0, 5), ...technical.slice(0, 5)];
+  return pool.slice(0, Math.min(count, pool.length));
+}
+
 async function generateQuestions(config) {
   const {
     interviewType,
@@ -65,6 +94,11 @@ async function generateQuestions(config) {
 
   if (count < 8 || count > 12) {
     throw new Error("Question count must be between 8 and 12");
+  }
+
+  if (!process.env.OPENROUTER_API_KEY) {
+    console.warn("OPENROUTER_API_KEY not set — returning mock questions");
+    return getMockQuestions(interviewType, role, count);
   }
 
   const system = `You are an expert technical and behavioral interviewer creating
@@ -148,7 +182,7 @@ Respond with the JSON object only.
 async function transcribeAudio(fileBuffer, filename, mimetype) {
   try {
     const file = await toFile(fileBuffer, filename, { type: mimetype });
-    const transcription = await client.audio.transcriptions.create({
+    const transcription = await getClient().audio.transcriptions.create({
       file,
       model: "openai/whisper-large-v3",
     });
