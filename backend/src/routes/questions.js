@@ -1,13 +1,31 @@
 const express = require("express");
 const router = express.Router();
+const multer = require("multer");
 const { generateQuestions, getSession } = require("../services/aiService");
 const { generateFollowUp } = require("../services/llmService");
 const authMiddleware = require("../middleware/authMiddleware");
+const { extractResumeText } = require("../services/resumeService");
+
+const resumeUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === "application/pdf") {
+      cb(null, true);
+    } else {
+      cb(new Error("Only PDF files are allowed for resume upload"));
+    }
+  },
+});
 // POST /api/questions/generate
 // Body: { sessionId, interviewType, role, industry, experienceLevel, resumeText?, count? }
-router.post("/generate", authMiddleware, async (req, res) => {
+router.post("/generate", authMiddleware, resumeUpload.single("resume"), async (req, res) => {
   try {
-    const config = req.body;
+    const resumeText = req.file
+      ? await extractResumeText(req.file.buffer)
+      : "";
+
+    const config = { ...req.body, resumeText };
     const userId = req.user.id;
 
     const questions = await generateQuestions(userId, config);
