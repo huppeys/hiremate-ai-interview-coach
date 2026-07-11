@@ -43,7 +43,7 @@ async function generateQuestions(userId, config) {
 
   // Save each question to Supabase
 for (const q of questions) {
-    await saveQuestion(session.id, q.question, q.type);
+    await saveQuestion(session.id, q.question, q.type, q.difficulty, q.tips);
   }
 
   return { sessionId: session.id, questions };
