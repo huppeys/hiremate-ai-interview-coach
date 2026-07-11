@@ -113,9 +113,9 @@ router.post(
 router.post("/:sessionId/questions", authMiddleware, async (req, res) => {
   try {
     const { sessionId } = req.params;
-    const { questionText, questionType } = req.body;
+    const { questionText, questionType, difficulty, tips, } = req.body;
 
-    const question = await saveQuestion(sessionId, questionText, questionType);
+    const question = await saveQuestion(sessionId, questionText, questionType, difficulty, tips);
 
     res.status(201).json(question);
   } catch (error) {
