@@ -31,13 +31,13 @@ export default function SessionFeedback() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    localStorage.setItem(`feedbackViewed_${sessionId}`, "true");
-
     async function load() {
       try {
         const res = await api.get(`/sessions/${sessionId}`);
         setSession(res.data.session);
         setResponses(res.data.responses || []);
+        // Mark feedback as viewed in Supabase (fire-and-forget)
+        api.patch(`/sessions/${sessionId}/feedback-viewed`).catch(() => {});
       } catch {
         setSession(null);
       } finally {

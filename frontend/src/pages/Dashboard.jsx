@@ -104,8 +104,7 @@ export default function Dashboard() {
           ) : (
             <ul className="space-y-3">
               {recentSessions.map((session, i) => {
-                const hasNewFeedback =
-                  localStorage.getItem(`feedbackViewed_${session.session_id}`) === "false";
+                const hasNewFeedback = session.feedback_viewed === false;
                 return (
                   <li
                     key={i}

@@ -1,11 +1,13 @@
 /*
  * Sessions Routes — /api/sessions
  *
+ * GET    /                          List all sessions for the logged-in user
  * POST   /config                    Create a new session with validation + optional resume PDF
  * GET    /:sessionId                Get session details + all responses
  * POST   /:sessionId/responses      Submit an answer to a question
  * PATCH  /:sessionId/pause          Pause an active session
  * PATCH  /:sessionId/abandon        Abandon a session (marks partial=true)
+ * PATCH  /:sessionId/feedback-viewed  Mark feedback as viewed
  * POST   /:sessionId/questions      Save a question to a session
  * POST   /:sessionId/audio          Receive audio blob for Whisper transcription
  */
@@ -49,6 +51,23 @@ const resumeUpload = multer({
       cb(new Error("Only PDF files are allowed for resume upload"));
     }
   },
+});
+
+// GET /api/sessions — list all sessions for the logged-in user
+router.get("/", authMiddleware, async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from("sessions")
+      .select("*")
+      .eq("user_id", req.user.id)
+      .order("created_at", { ascending: false })
+      .limit(10);
+
+    if (error) throw error;
+    res.json(data || []);
+  } catch (err) {
+    res.status(500).json({ message: "Something went wrong", error: err.message });
+  }
 });
 
 // POST /api/sessions/config
@@ -311,6 +330,36 @@ const upload = multer({
     }
   },
 });
+// PATCH /api/sessions/:sessionId/feedback-viewed — mark feedback as viewed
+router.patch("/:sessionId/feedback-viewed", authMiddleware, async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+
+    const { data: sessions, error: fetchError } = await supabase
+      .from("sessions")
+      .select("user_id")
+      .eq("session_id", sessionId);
+
+    if (fetchError) throw fetchError;
+    if (!sessions || sessions.length === 0) {
+      return res.status(404).json({ message: "Session not found" });
+    }
+    if (sessions[0].user_id !== req.user.id) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    const { error: updateError } = await supabase
+      .from("sessions")
+      .update({ feedback_viewed: true })
+      .eq("session_id", sessionId);
+
+    if (updateError) throw updateError;
+    res.json({ message: "Feedback marked as viewed" });
+  } catch (err) {
+    res.status(500).json({ message: "Something went wrong", error: err.message });
+  }
+});
+
 // POST /api/sessions/:sessionId/audio
 // Receives audio blob from frontend, transcribes via Whisper (through OpenRouter).
 router.post("/:sessionId/audio", authMiddleware, upload.single("audio"), async (req, res) => {

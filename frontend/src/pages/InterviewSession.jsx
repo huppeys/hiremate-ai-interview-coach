@@ -101,7 +101,6 @@ export default function InterviewSession() {
       });
 
       if (isLastQuestion) {
-        localStorage.setItem(`feedbackViewed_${sessionId}`, "false");
         setSessionDone(true);
       } else {
         setFeedback(res.data.feedback || null);
@@ -109,7 +108,6 @@ export default function InterviewSession() {
       }
     } catch (err) {
       if (isLastQuestion) {
-        localStorage.setItem(`feedbackViewed_${sessionId}`, "false");
         setSessionDone(true);
       } else {
         setFeedback({
