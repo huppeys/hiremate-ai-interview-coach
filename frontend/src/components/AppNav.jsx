@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 export default function AppNav() {
   const navigate = useNavigate();
   return (
-    <nav className="bg-white shadow-sm px-6 py-3 flex items-center justify-between print:hidden">
+    <nav className="bg-white shadow-sm px-4 sm:px-6 py-3 flex items-center justify-between print:hidden">
       <button
         onClick={() => navigate("/dashboard")}
         className="text-lg font-bold text-teal-800 hover:text-teal-600 transition"

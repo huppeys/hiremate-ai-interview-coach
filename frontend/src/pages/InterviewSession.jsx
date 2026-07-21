@@ -182,19 +182,19 @@ export default function InterviewSession() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <div className="flex items-center justify-between px-6 py-4 bg-white shadow-sm">
-        <button onClick={handleExit} className="text-sm text-gray-500 hover:text-red-500 transition font-medium">
+      <div className="flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4 bg-white shadow-sm">
+        <button onClick={handleExit} className="text-xs sm:text-sm text-gray-500 hover:text-red-500 transition font-medium">
           ✕ Exit
         </button>
-        <span className="text-sm font-medium text-gray-600">
-          Question {currentIndex + 1} of {questions.length}
+        <span className="text-xs sm:text-sm font-medium text-gray-600">
+          Q {currentIndex + 1}/{questions.length}
         </span>
-        <span className={`text-sm font-bold ${timerColor()}`}>
+        <span className={`text-xs sm:text-sm font-bold ${timerColor()}`}>
           ⏱ {formatTime(timeLeft)}
         </span>
       </div>
 
-      <div className="flex-1 flex flex-col items-center justify-start px-4 py-8 max-w-2xl mx-auto w-full">
+      <div className="flex-1 flex flex-col items-center justify-start px-3 sm:px-4 py-6 sm:py-8 max-w-2xl mx-auto w-full">
         <div className="w-full bg-white rounded-2xl shadow p-6 mb-6">
           <p className="text-xs text-teal-600 font-semibold uppercase mb-2">
             {currentQuestion?.type} · {currentQuestion?.difficulty}

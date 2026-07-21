@@ -101,7 +101,7 @@ export default function SessionConfig() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-100 flex items-center justify-center px-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-5 sm:p-8">
         <button
           onClick={() => navigate("/dashboard")}
           className="text-xs text-teal-700 hover:text-teal-900 font-medium mb-4 flex items-center gap-1"
