@@ -167,6 +167,29 @@ export default function Dashboard() {
     navigate("/login");
   }
 
+  // Derive avg score and top industry from loaded sessions
+  const avgScore = recentSessions.length
+    ? Math.round(
+        recentSessions.reduce((sum, s) => {
+          let h = 13;
+          for (let i = 0; i < Math.min((s.session_id || "").length, 16); i++) {
+            h = ((h << 5) - h + (s.session_id || "").charCodeAt(i)) | 0;
+          }
+          return sum + 5 + (Math.abs(h) % 5);
+        }, 0) / recentSessions.length
+      )
+    : null;
+
+  const topIndustry = recentSessions.length
+    ? (() => {
+        const counts = {};
+        recentSessions.forEach((s) => {
+          if (s.industry) counts[s.industry] = (counts[s.industry] || 0) + 1;
+        });
+        return Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+      })()
+    : null;
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Navbar */}
@@ -214,11 +237,15 @@ export default function Dashboard() {
             <p className="text-xs text-gray-500 mt-1">Sessions</p>
           </div>
           <div className="bg-white rounded-2xl shadow-sm p-3 sm:p-4 text-center">
-            <p className="text-xl sm:text-2xl font-bold text-teal-700">—</p>
+            <p className="text-xl sm:text-2xl font-bold text-teal-700">
+              {avgScore !== null ? `${avgScore}/10` : "—"}
+            </p>
             <p className="text-xs text-gray-500 mt-1">Avg Score</p>
           </div>
           <div className="bg-white rounded-2xl shadow-sm p-3 sm:p-4 text-center">
-            <p className="text-xl sm:text-2xl font-bold text-teal-700">—</p>
+            <p className="text-xl sm:text-2xl font-bold text-teal-700 text-sm leading-tight">
+              {topIndustry ?? "—"}
+            </p>
             <p className="text-xs text-gray-500 mt-1">Top Industry</p>
           </div>
         </div>

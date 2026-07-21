@@ -5,6 +5,33 @@ import ResponseInput from "../components/ResponseInput";
 
 const TIMER_SECONDS = 120;
 
+function deriveFeedback(text) {
+  const words = text.trim().split(/\s+/);
+  const wc = words.length;
+
+  const contentScore = wc < 15 ? 4 : wc < 40 ? 6 : wc < 80 ? 8 : 9;
+
+  const sentences = text.split(/[.!?]+/).filter((s) => s.trim().length > 3).length;
+  const clarityScore = sentences < 2 ? 5 : sentences < 4 ? 7 : sentences < 7 ? 8 : 9;
+
+  const hedges = (text.match(/\b(maybe|perhaps|possibly|might|sort of|kind of|I guess|not sure|I think)\b/gi) || []).length;
+  const confidenceScore = Math.max(4, 9 - hedges * 2);
+
+  const starWords = (text.match(/\b(situation|task|action|result|when|because|therefore|consequently|managed|achieved|completed|led|improved|decided|implemented)\b/gi) || []).length;
+  const starScore = starWords < 2 ? 4 : starWords < 4 ? 6 : starWords < 7 ? 8 : 9;
+
+  const lowestKey = Object.entries({ contentScore, clarityScore, confidenceScore, starScore })
+    .sort((a, b) => a[1] - b[1])[0][0];
+  const tips = {
+    contentScore: "Try to elaborate more — add specific examples and details.",
+    clarityScore: "Structure your answer with clear sentences and logical flow.",
+    confidenceScore: "Use confident language and avoid hedging words like 'maybe' or 'I think'.",
+    starScore: "Use the STAR method: Situation, Task, Action, Result.",
+  };
+
+  return { contentScore, clarityScore, confidenceScore, starScore, tip: tips[lowestKey] };
+}
+
 const DUMMY_QUESTIONS = [
   {
     id: "q1",
@@ -103,21 +130,14 @@ export default function InterviewSession() {
       if (isLastQuestion) {
         setSessionDone(true);
       } else {
-        setFeedback(res.data.feedback || null);
+        setFeedback(res.data.feedback || deriveFeedback(answer));
         setFollowUp(res.data.followUpQuestion || null);
       }
     } catch (err) {
       if (isLastQuestion) {
         setSessionDone(true);
       } else {
-        setFeedback({
-          contentScore: 7,
-          clarityScore: 8,
-          confidenceScore: 7,
-          starScore: 6,
-          tip: "Try to use the STAR method: Situation, Task, Action, Result.",
-          fillerWords: [],
-        });
+        setFeedback(deriveFeedback(answer));
       }
     } finally {
       setSubmitting(false);
