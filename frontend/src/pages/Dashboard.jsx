@@ -103,25 +103,39 @@ export default function Dashboard() {
             </div>
           ) : (
             <ul className="space-y-3">
-              {recentSessions.map((session, i) => (
-                <li
-                  key={i}
-                  className="flex items-center justify-between border border-gray-100 rounded-xl px-4 py-3"
-                >
-                  <div>
-                    <p className="text-sm font-medium text-gray-700">
-                      {session.target_role || "Interview Session"}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {session.industry} ·{" "}
-                      {new Date(session.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <span className="text-sm font-semibold text-teal-700">
-                    {session.score ?? "—"}
-                  </span>
-                </li>
-              ))}
+              {recentSessions.map((session, i) => {
+                const hasNewFeedback =
+                  localStorage.getItem(`feedbackViewed_${session.session_id}`) === "false";
+                return (
+                  <li
+                    key={i}
+                    onClick={() => navigate(`/feedback/${session.session_id}`)}
+                    className="flex items-center justify-between border border-gray-100 rounded-xl px-4 py-3 cursor-pointer hover:bg-teal-50 hover:border-teal-200 transition"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-medium text-gray-700">
+                            {session.target_role || "Interview Session"}
+                          </p>
+                          {hasNewFeedback && (
+                            <span className="inline-flex items-center bg-teal-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                              New
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-500">
+                          {session.industry} ·{" "}
+                          {new Date(session.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-sm font-semibold text-teal-700">
+                      {session.score ?? "—"}
+                    </span>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>

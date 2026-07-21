@@ -6,6 +6,7 @@ import ProfileSetup from "./pages/ProfileSetup";
 import Dashboard from "./pages/Dashboard";
 import SessionConfig from "./pages/SessionConfig";
 import InterviewSession from "./pages/InterviewSession";
+import SessionFeedback from "./pages/SessionFeedback";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/session-config" element={<SessionConfig />} />
         <Route path="/interview/:sessionId" element={<InterviewSession />} />
+        <Route path="/feedback/:sessionId" element={<SessionFeedback />} />
       </Routes>
     </BrowserRouter>
   );

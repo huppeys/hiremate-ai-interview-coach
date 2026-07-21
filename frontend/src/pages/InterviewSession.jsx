@@ -90,6 +90,8 @@ export default function InterviewSession() {
     setSubmitting(true);
     setTimerActive(false);
 
+    const isLastQuestion = currentIndex + 1 >= questions.length;
+
     try {
       const currentQuestion = questions[currentIndex];
       const res = await api.post(`/sessions/${sessionId}/responses`, {
@@ -97,17 +99,28 @@ export default function InterviewSession() {
         questionText: currentQuestion.question,
         answer,
       });
-      setFeedback(res.data.feedback || null);
-      setFollowUp(res.data.followUpQuestion || null);
+
+      if (isLastQuestion) {
+        localStorage.setItem(`feedbackViewed_${sessionId}`, "false");
+        setSessionDone(true);
+      } else {
+        setFeedback(res.data.feedback || null);
+        setFollowUp(res.data.followUpQuestion || null);
+      }
     } catch (err) {
-      setFeedback({
-        contentScore: 7,
-        clarityScore: 8,
-        confidenceScore: 7,
-        starScore: 6,
-        tip: "Try to use the STAR method: Situation, Task, Action, Result.",
-        fillerWords: [],
-      });
+      if (isLastQuestion) {
+        localStorage.setItem(`feedbackViewed_${sessionId}`, "false");
+        setSessionDone(true);
+      } else {
+        setFeedback({
+          contentScore: 7,
+          clarityScore: 8,
+          confidenceScore: 7,
+          starScore: 6,
+          tip: "Try to use the STAR method: Situation, Task, Action, Result.",
+          fillerWords: [],
+        });
+      }
     } finally {
       setSubmitting(false);
     }
@@ -144,13 +157,23 @@ export default function InterviewSession() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-teal-100 px-4">
         <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full text-center">
-          <h2 className="text-2xl font-bold text-teal-800 mb-2">Session Complete!</h2>
-          <p className="text-gray-500 mb-6">Great work! You answered all {questions.length} questions.</p>
+          <div className="text-5xl mb-4">✅</div>
+          <h2 className="text-2xl font-bold text-teal-800 mb-2">Interview Complete!</h2>
+          <p className="text-gray-500 mb-2">You answered {questions.length} questions.</p>
+          <p className="text-teal-600 text-sm font-medium mb-6">
+            Great job! Your feedback is ready to review.
+          </p>
+          <button
+            onClick={() => navigate(`/feedback/${sessionId}`)}
+            className="w-full bg-teal-700 hover:bg-teal-800 text-white font-semibold py-3 rounded-xl transition mb-3"
+          >
+            View My Feedback →
+          </button>
           <button
             onClick={() => navigate("/dashboard")}
-            className="w-full bg-teal-700 hover:bg-teal-800 text-white font-medium py-2 rounded-lg transition"
+            className="w-full border border-gray-300 text-gray-600 hover:bg-gray-50 font-medium py-3 rounded-xl transition"
           >
-            Go to Dashboard
+            Back to Dashboard
           </button>
         </div>
       </div>
@@ -221,9 +244,9 @@ export default function InterviewSession() {
         ) : (
           <button
             onClick={handleNext}
-            className="w-full bg-teal-700 hover:bg-teal-800 text-white font-medium py-3 rounded-xl transition"
+            className="w-full bg-teal-700 hover:bg-teal-800 text-white font-semibold py-3 rounded-xl transition"
           >
-            {currentIndex + 1 >= questions.length ? "Finish Session" : "Next Question →"}
+            {currentIndex + 1 >= questions.length ? "View My Feedback →" : "Next Question →"}
           </button>
         )}
       </div>
