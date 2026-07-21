@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../api/axiosConfig";
+import AppNav from "../components/AppNav";
 
 function deriveScore(text) {
   if (!text) return 6;
@@ -36,7 +37,6 @@ export default function SessionFeedback() {
         const res = await api.get(`/sessions/${sessionId}`);
         setSession(res.data.session);
         setResponses(res.data.responses || []);
-        // Mark feedback as viewed in Supabase (fire-and-forget)
         api.patch(`/sessions/${sessionId}/feedback-viewed`).catch(() => {});
       } catch {
         setSession(null);
@@ -61,8 +61,10 @@ export default function SessionFeedback() {
     : null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-100 px-4 py-8">
-      <div className="max-w-2xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-100">
+      <AppNav />
+
+      <div className="px-4 py-8 max-w-2xl mx-auto">
         {/* Header card */}
         <div className="bg-white rounded-2xl shadow-lg p-8 text-center mb-6">
           <div className="text-5xl mb-3">✅</div>
@@ -113,12 +115,21 @@ export default function SessionFeedback() {
           </div>
         )}
 
-        <button
-          onClick={() => navigate("/dashboard")}
-          className="w-full bg-teal-700 hover:bg-teal-800 text-white font-medium py-3 rounded-xl transition"
-        >
-          Back to Dashboard
-        </button>
+        {/* Action buttons */}
+        <div className="flex gap-3 print:hidden">
+          <button
+            onClick={() => window.print()}
+            className="flex-1 border border-teal-700 text-teal-700 hover:bg-teal-50 font-medium py-3 rounded-xl transition"
+          >
+            Download PDF
+          </button>
+          <button
+            onClick={() => navigate("/dashboard")}
+            className="flex-1 bg-teal-700 hover:bg-teal-800 text-white font-medium py-3 rounded-xl transition"
+          >
+            My Progress →
+          </button>
+        </div>
       </div>
     </div>
   );

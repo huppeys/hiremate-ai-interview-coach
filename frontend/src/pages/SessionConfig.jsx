@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axiosConfig";
-import RoleDropdown from "../components/RoleDropdown";
+import RoleDropdown, { INDUSTRIES } from "../components/RoleDropdown";
 import ResumeUpload from "../components/ResumeUpload";
 
 const INTERVIEW_TYPES = [
@@ -102,6 +102,12 @@ export default function SessionConfig() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-100 flex items-center justify-center px-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
+        <button
+          onClick={() => navigate("/dashboard")}
+          className="text-xs text-teal-700 hover:text-teal-900 font-medium mb-4 flex items-center gap-1"
+        >
+          ← My Progress
+        </button>
         <div className="flex items-center justify-between mb-6">
           {[1, 2, 3].map((n) => (
             <div key={n} className="flex-1 flex items-center">
@@ -185,14 +191,12 @@ export default function SessionConfig() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Industry
                 </label>
-                <input
-                  type="text"
+                <RoleDropdown
                   value={config.industry}
-                  onChange={(e) => updateField("industry", e.target.value)}
-                  placeholder="e.g. Technology, Healthcare, Business"
-                  className={`w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-400 ${
-                    errors.industry ? "border-red-400" : "border-gray-300"
-                  }`}
+                  onChange={(val) => updateField("industry", val)}
+                  error={errors.industry}
+                  options={INDUSTRIES}
+                  placeholder="e.g. Technology, Healthcare, Finance"
                 />
                 {errors.industry && (
                   <p className="text-red-500 text-xs mt-1">{errors.industry}</p>

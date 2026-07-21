@@ -86,8 +86,8 @@ export default function Dashboard() {
 
         {/* Recent sessions */}
         <div className="bg-white rounded-2xl shadow-sm p-6">
-          <h3 className="text-sm font-semibold text-gray-600 uppercase mb-4">
-            Recent Sessions
+          <h3 className="text-base font-bold text-teal-800 mb-4 flex items-center gap-2">
+            📊 My Progress
           </h3>
 
           {loading ? (
